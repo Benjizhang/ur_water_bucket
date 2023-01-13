@@ -40,7 +40,7 @@ from sklearn.linear_model import LinearRegression
 import pickle
 from scipy.spatial.transform import Rotation as R
 
-
+## only x,y,z positions along paths
 def urGivenPath(ur_control,file_dir,path_id,oigin_pt):
     ## ur
     waypoints1 = []
@@ -78,7 +78,7 @@ def urGivenPath(ur_control,file_dir,path_id,oigin_pt):
     return waypoints1
 
 ## with varying angles along paths
-def urGivenPath2(ur_control,file_dir,path_id,oigin_pt):
+def urGivenPath2(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad):
     ## ur
     waypoints1 = []
     wpose = ur_control.group.get_current_pose().pose
@@ -115,7 +115,7 @@ def urGivenPath2(ur_control,file_dir,path_id,oigin_pt):
 
         ## quaternion in global frame
         theta_rad_global = -theta_rad_shiyu
-        r = R.from_euler('y', theta_rad_global)
+        r = R.from_euler('y', theta_rad_global+oigin_angle_rad)
         # r_rotmat = R.from_euler('y', theta_rad_global).as_matrix()
         quat_global = r.as_quat()
         
@@ -279,14 +279,23 @@ if __name__ == '__main__':
     wpose.position.x = start_pt[0]#+0.21 #-0.1
     wpose.position.y = start_pt[1]
     wpose.position.z = start_pt[2]#+0.2 #+0.2 #-0.25
+    ## [bucket] oigin of shiyu frame expressed in global frame
+    oigin_pt = np.array(start_pt)-np.array([0,0,0.45])
+
+    ## [bucket] give start angle of bucket at start pt
+    oigin_angle_rad = -1.5*np.pi
+    r = R.from_euler('y', 0+oigin_angle_rad)
+    quat_global = r.as_quat()
+    wpose.orientation.x = quat_global[0]
+    wpose.orientation.y = quat_global[1]
+    wpose.orientation.z = quat_global[2]
+    wpose.orientation.w = quat_global[3]
     ## [bucket] return to start pt before any paths
     waypoints.append(copy.deepcopy(wpose))
     (plan, fraction) = ur_control.go_cartesian_path(waypoints,execute=False)
     ur_control.group.execute(plan, wait=True)
     rospy.sleep(0.5)
-    ## [bucket] oigin of shiyu frame expressed in global frame
-    oigin_pt = np.array(start_pt)-np.array([0,0,0.45])
-
+    
     
     fd_nonjamming = 3  # 3N
     fd_object = 7  # 3N
@@ -420,7 +429,8 @@ if __name__ == '__main__':
         fileName = '/bucket_targeted_amount_0.6_saved_trajs.pkl'
         file_dir = expFolderName+fileName
         path_id = 0
-        waypts = urGivenPath(ur_control,file_dir,path_id,oigin_pt)
+        # waypts = urGivenPath(ur_control,file_dir,path_id,oigin_pt)
+        waypts = urGivenPath2(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad)
         ## [bucket] plan & execute
         (plan, fraction) = ur_control.go_cartesian_path(waypts,execute=False)
         listener.clear_finish_flag()
