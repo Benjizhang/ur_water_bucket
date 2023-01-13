@@ -4,11 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 
-expFolderName = '../data'
-fileName = 'bucket_targeted_amount_0.6_saved_trajs.pkl'
-# save_path = expFolderName+'/fig'
-# f = open(expFolderName+fileName,'rb')
-f = open(fileName,'rb')
+expFolderName = '/home/zhangzeqing/ur5_ws/src/ur_water_bucket/data'
+fileName = '/bucket_targeted_amount_0.6_saved_trajs.pkl'
+save_path = expFolderName+'/fig'
+
+f = open(expFolderName+fileName,'rb')
 data = pickle.load(f)
 # print(data)
 # print(data['loader_type'])
