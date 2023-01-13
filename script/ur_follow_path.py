@@ -40,7 +40,7 @@ from sklearn.linear_model import LinearRegression
 import pickle
 
 
-def urGivenPath(ur_control,file_dir,path_id,init_pt):
+def urGivenPath(ur_control,file_dir,path_id,oigin_pt):
     ## ur
     waypoints1 = []
     wpose = ur_control.group.get_current_pose().pose
@@ -58,22 +58,23 @@ def urGivenPath(ur_control,file_dir,path_id,init_pt):
     ## theta (rad) R^{75*1}
     rot_traj = paths_theta[path_id,:,:]
 
-    for i in range(path_length):
-        
-        x_shiyu = cur_path_xyz[i,1]
+    for i in range(9):       
+        x_shiyu = cur_path_xyz[i,0]
         y_shiyu = cur_path_xyz[i,1]
         z_shiyu = cur_path_xyz[i,2]
         theta_deg_shiyu = np.degrees(rot_traj[i,0])
 
         ## convert shiyu frame to UR frame (global)
-        x_global = z_shiyu + init_pt[0]
-        y_global = -x_shiyu+ init_pt[1]
-        z_global = y_shiyu + init_pt[2]        
+        x_global = z_shiyu + oigin_pt[0]
+        y_global = -x_shiyu+ oigin_pt[1]
+        z_global = y_shiyu + oigin_pt[2]
 
         wpose.position.x = x_global
         wpose.position.y = y_global
         wpose.position.z = z_global        
         waypoints1.append(copy.deepcopy(wpose))
+    
+    return waypoints1
 
 
 if __name__ == '__main__':
@@ -142,7 +143,7 @@ if __name__ == '__main__':
     # PENETRATION DEPTH
     if exp_mode == 'trial':
         PENE_DEPTH = 0.05    #(default: -0.03) # <<<<<<
-        normalVelScale = 0.5 # <<<<<<
+        normalVelScale = 0.1 # <<<<<<
     elif exp_mode == 'normal':
         PENE_DEPTH = -0.04   #(default: -0.03) # <<<<<<
         normalVelScale = 0.1 #(default: 0.2) <<<<<<
@@ -154,7 +155,7 @@ if __name__ == '__main__':
     CUR_SAFE_FORCE = 15.0  #(default: 15N) # <<<<<<
     
     # folder name
-    expFolderName = '/20230112_UR_EEVel_circle' # <<<<<<
+    expFolderName = '/20230112_UR_EEVel_circled' # <<<<<<
     NutStorePath = '/home/zhangzeqing/Nutstore Files/Nutstore/02Wedge'
     dataPath = NutStorePath+expFolderName+'/data'
     figPath = NutStorePath+expFolderName+'/fig'
@@ -213,17 +214,27 @@ if __name__ == '__main__':
     # rospy.sleep(0.5)
 
     ## go the init pos of the exp 
-    init_pose = [0 for hh in range(0,3)]
-    init_pose[0] = originx + 0.085 - 0.005*6
-    init_pose[1] = originy + 0.1
-    init_pose[2] = sp.SAFEZ
-    go2GivenPoseSP(ur_control,sp,init_pose)
-    rospy.sleep(0.5)
+    # init_pose = [0 for hh in range(0,3)]
+    # init_pose[0] = originx + 0.085 - 0.005*6
+    # init_pose[1] = originy + 0.1
+    # init_pose[2] = sp.SAFEZ
+    # go2GivenPoseSP(ur_control,sp,init_pose)
+    # rospy.sleep(0.5)
 
-    # penetration
-    init_pose[2] = depthz
-    go2GivenPoseSP(ur_control,sp,init_pose)
+    ## [bucket] start point x=0,y=0.45,z=0 expressed in shiyu frame 
+    start_pt = [-0.54943859455702817, 0.10205824512513274,0.08795793366304825]
+    waypoints = []
+    wpose = ur_control.group.get_current_pose().pose
+    wpose.position.x = start_pt[0]#+0.21 #-0.1
+    wpose.position.y = start_pt[1]
+    wpose.position.z = start_pt[2]#+0.2 #+0.2 #-0.25
+    waypoints.append(copy.deepcopy(wpose))
+    (plan, fraction) = ur_control.go_cartesian_path(waypoints,execute=False)
+    ur_control.group.execute(plan, wait=True)
     rospy.sleep(0.5)
+    ## [bucket] oigin of shiyu frame expressed in global frame
+    oigin_pt = np.array(start_pt)-np.array([0,0,0.45])
+
     
     fd_nonjamming = 3  # 3N
     fd_object = 7  # 3N
@@ -307,27 +318,8 @@ if __name__ == '__main__':
         # x_e_wldf = initPtx + 0.12
         # y_e_wldf = initPty + 0.3
 
-        ## lift up
-        # # ur_control.set_speed_slider(maxVelScale)
-        # # waypoints = []
-        # # wpose = ur_control.group.get_current_pose().pose
-        # # wpose.position.z = sp.SAFEZ
-        # # waypoints.append(copy.deepcopy(wpose))
-        # # (plan, fraction) = ur_control.go_cartesian_path(waypoints,execute=False)
-        # # ur_control.group.execute(plan, wait=True)
-                
-        # ## check the coorrdinate limit
-        # if not sp.checkCoorLimitXY([x_e_wldf, y_e_wldf]):
-        #     rospy.loginfo('Out of the Worksapce:\n x {}, y {}'.format(round(x_e_wldf,3),round(y_e_wldf,3)))
-        #     ur_control.group.stop()
-        #     raise Exception('Out of the Worksapce:\n x {}, y {}'.format(round(x_e_wldf,3),round(y_e_wldf,3)))
-
-        # vect2goalx = x_e_wldf - x_s_wldf
-        # vect2goaly = y_e_wldf - y_s_wldf
-        # norm_vect2goal = np.sqrt(vect2goalx**2+vect2goaly**2)
-        # print('path length: {:.3f}'.format(norm_vect2goal))
-        
         ## circle+line (a.k.a. spiral traj.)
+        # region
         # # _,_,waypts = urCentOLine(ur_control,0.01,0.01,[x_e_wldf,y_e_wldf])
         # # _,_,waypts = urCentOLine_sim(ur_control,traj_radius,0.01,[x_e_wldf,y_e_wldf])
         # # waypts = urCentOLine2(ur_control,traj_radius,0.01,[x_s_wldf,y_s_wldf],[x_e_wldf,y_e_wldf])
@@ -340,6 +332,7 @@ if __name__ == '__main__':
         # listener.zero_ft_sensor()
         # rospy.sleep(0.5)
         # ur_control.group.execute(plan, wait=False)
+        # endregion
 
         # go to the goal (line)
         # region
@@ -358,22 +351,30 @@ if __name__ == '__main__':
 
         ## circular motion 
         # region
-        circleVelScale=0.3
-        num_circle = 5
-        waypts = urCircle(ur_control,traj_radius,[x_s_wldf,y_s_wldf],num_circle)
-        (plan, fraction) = ur_control.go_cartesian_path(waypts,execute=False)
-        listener.clear_finish_flag()
-        ur_control.set_speed_slider(circleVelScale)
-        listener.zero_ft_sensor()
-        rospy.sleep(0.5)
-        ur_control.group.execute(plan, wait=False)
+        # circleVelScale=0.3
+        # num_circle = 5
+        # waypts = urCircle(ur_control,traj_radius,[x_s_wldf,y_s_wldf],num_circle)
+        # (plan, fraction) = ur_control.go_cartesian_path(waypts,execute=False)
+        # listener.clear_finish_flag()
+        # ur_control.set_speed_slider(circleVelScale)
+        # listener.zero_ft_sensor()
+        # rospy.sleep(0.5)
+        # ur_control.group.execute(plan, wait=False)
         # endregion
+
+        ## bucket path
+        bucketVelScale=0.1
         expFolderName = '/home/zhangzeqing/ur5_ws/src/ur_water_bucket/data'
         fileName = '/bucket_targeted_amount_0.6_saved_trajs.pkl'
         file_dir = expFolderName+fileName
         path_id = 0
-        init_pt = []
-        waypts = urGivenPath(ur_control,file_dir,path_id,init_pt)
+        waypts = urGivenPath(ur_control,file_dir,path_id,oigin_pt)
+        (plan, fraction) = ur_control.go_cartesian_path(waypts,execute=False)
+        listener.clear_finish_flag()
+        ur_control.set_speed_slider(bucketVelScale)
+        listener.zero_ft_sensor()
+        rospy.sleep(0.5)
+        ur_control.group.execute(plan, wait=False)
 
         ## --- [force monitor] ---
         rospy.loginfo('clear_finish_flag')
