@@ -58,7 +58,7 @@ def urGivenPath(ur_control,file_dir,path_id,oigin_pt):
     ## theta (rad) R^{75*1}
     rot_traj = paths_theta[path_id,:,:]
 
-    for i in range(9):       
+    for i in range(37):
         x_shiyu = cur_path_xyz[i,0]
         y_shiyu = cur_path_xyz[i,1]
         z_shiyu = cur_path_xyz[i,2]
