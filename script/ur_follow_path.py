@@ -38,6 +38,7 @@ from functions.boa_helper import plot_2d2,plot_2d3,plot_2d4
 from sklearn.linear_model import LinearRegression
 
 import pickle
+from scipy.spatial.transform import Rotation as R
 
 
 def urGivenPath(ur_control,file_dir,path_id,oigin_pt):
@@ -74,6 +75,56 @@ def urGivenPath(ur_control,file_dir,path_id,oigin_pt):
         wpose.position.z = z_global        
         waypoints1.append(copy.deepcopy(wpose))
     
+    return waypoints1
+
+## with varying angles along paths
+def urGivenPath2(ur_control,file_dir,path_id,oigin_pt):
+    ## ur
+    waypoints1 = []
+    wpose = ur_control.group.get_current_pose().pose
+
+    ## given path info
+    f = open(file_dir,'rb')
+    data = pickle.load(f)
+    paths_xyz = data['loader_pos_trajs']
+    paths_theta = data['loader_rot_trajs']
+    num_path = np.shape(paths_xyz)[0]
+    path_length = data['episode_length']
+
+    ## path xyz R^{75*3}
+    cur_path_xyz = paths_xyz[path_id,:,:]
+    ## theta (rad) R^{75*1}
+    rot_traj = paths_theta[path_id,:,:]
+
+    for i in range(37):
+        ## position in Shiyu's frame
+        x_shiyu = cur_path_xyz[i,0]
+        y_shiyu = cur_path_xyz[i,1]
+        z_shiyu = cur_path_xyz[i,2]
+        theta_deg_shiyu = np.degrees(rot_traj[i,0])
+        theta_rad_shiyu = rot_traj[i,0]
+
+        ## convert shiyu frame to UR frame (global)
+        x_global = z_shiyu + oigin_pt[0]
+        y_global = -x_shiyu+ oigin_pt[1]
+        z_global = y_shiyu + oigin_pt[2]
+
+        wpose.position.x = x_global
+        wpose.position.y = y_global
+        wpose.position.z = z_global        
+
+        ## quaternion in global frame
+        theta_rad_global = -theta_rad_shiyu
+        r = R.from_euler('y', theta_rad_global)
+        # r_rotmat = R.from_euler('y', theta_rad_global).as_matrix()
+        quat_global = r.as_quat()
+        
+        wpose.orientation.x = quat_global[0]
+        wpose.orientation.y = quat_global[1]
+        wpose.orientation.z = quat_global[2]
+        wpose.orientation.w = quat_global[3]
+
+        waypoints1.append(copy.deepcopy(wpose))
     return waypoints1
 
 
