@@ -228,6 +228,7 @@ if __name__ == '__main__':
     wpose.position.x = start_pt[0]#+0.21 #-0.1
     wpose.position.y = start_pt[1]
     wpose.position.z = start_pt[2]#+0.2 #+0.2 #-0.25
+    ## [bucket] return to start pt before any paths
     waypoints.append(copy.deepcopy(wpose))
     (plan, fraction) = ur_control.go_cartesian_path(waypoints,execute=False)
     ur_control.group.execute(plan, wait=True)
@@ -362,13 +363,14 @@ if __name__ == '__main__':
         # ur_control.group.execute(plan, wait=False)
         # endregion
 
-        ## bucket path
+        ## [bucket] generate waypts along bucket path
         bucketVelScale=0.1
         expFolderName = '/home/zhangzeqing/ur5_ws/src/ur_water_bucket/data'
         fileName = '/bucket_targeted_amount_0.6_saved_trajs.pkl'
         file_dir = expFolderName+fileName
         path_id = 0
         waypts = urGivenPath(ur_control,file_dir,path_id,oigin_pt)
+        ## [bucket] plan & execute
         (plan, fraction) = ur_control.go_cartesian_path(waypts,execute=False)
         listener.clear_finish_flag()
         ur_control.set_speed_slider(bucketVelScale)
