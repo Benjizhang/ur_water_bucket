@@ -154,24 +154,41 @@ for path_id in range(num_path):
 
         ax.plot3D(xline,yline,zline,'-',color="darkgreen")
 
-        # start/goal
-        x_start_global = cur_path_xyz[0,2] + oigin_pt[0]
-        y_start_global = -cur_path_xyz[0,0]+ oigin_pt[1]
-        z_start_global = cur_path_xyz[0,1] + oigin_pt[2]
-        x_goal_global = cur_path_xyz[-1,2] + oigin_pt[0]
-        y_goal_global = -cur_path_xyz[-1,0]+ oigin_pt[1]
-        z_goal_global = cur_path_xyz[-1,1] + oigin_pt[2]
-        ax.scatter(x_start_global,y_start_global,z_start_global, marker="o", color="red", s = 40,label="start")
-        ax.scatter(x_goal_global,y_goal_global,z_goal_global, marker="x", color="red", s = 40,label="goal")
+        ## start/goal
+        # x_start_global = cur_path_xyz[0,2] + oigin_pt[0]
+        # y_start_global = -cur_path_xyz[0,0]+ oigin_pt[1]
+        # z_start_global = cur_path_xyz[0,1] + oigin_pt[2]
+        # x_goal_global = cur_path_xyz[-1,2] + oigin_pt[0]
+        # y_goal_global = -cur_path_xyz[-1,0]+ oigin_pt[1]
+        # z_goal_global = cur_path_xyz[-1,1] + oigin_pt[2]
+        # ax.scatter(x_start_global,y_start_global,z_start_global, marker="o", color="red", s = 40,label="start")
+        # ax.scatter(x_goal_global,y_goal_global,z_goal_global, marker="x", color="red", s = 40,label="goal")
 
+        # ax.axis('scaled')
+        # ax.set_xlim([-0.2,0.3])
+        # ax.set_zlim([0.1,0.7])
+        # ax.set_xlabel('x', labelpad=5)
+        # ax.set_ylabel('y', labelpad=5)
+        # ax.set_zlabel('z', labelpad=5)        
 
-        ax.axis('scaled')
-        ax.set_xlim([-0.2,0.3])
-        ax.set_zlim([0.1,0.7])
-        ax.set_xlabel('x', labelpad=5)
-        ax.set_ylabel('y', labelpad=5)
-        ax.set_zlabel('z', labelpad=5)        
+    
+    # start/goal
+    x_start_global = cur_path_xyz[0,2] + oigin_pt[0]
+    y_start_global = -cur_path_xyz[0,0]+ oigin_pt[1]
+    z_start_global = cur_path_xyz[0,1] + oigin_pt[2]
+    x_goal_global = cur_path_xyz[-1,2] + oigin_pt[0]
+    y_goal_global = -cur_path_xyz[-1,0]+ oigin_pt[1]
+    z_goal_global = cur_path_xyz[-1,1] + oigin_pt[2]
+    ax.scatter(x_start_global,y_start_global,z_start_global, marker="o", color="red", s = 40,label="start")
+    ax.scatter(x_goal_global,y_goal_global,z_goal_global, marker="x", color="red", s = 40,label="goal")
 
     ax.axis('scaled')
+    ax.set_xlim([-0.2,0.3])
+    ax.set_zlim([0.1,0.7])
+    ax.axis('scaled')
+    ax.set_xlabel('x', labelpad=5)
+    ax.set_ylabel('y', labelpad=5)
+    ax.set_zlabel('z', labelpad=5)   
     ax.set_title(f'{path_id}-th path')
+    plt.legend()
     plt.show()
