@@ -492,13 +492,15 @@ if __name__ == '__main__':
         # ur_control.group.execute(plan, wait=False)
         
         
+        execute = False
         waypts = urGivenPath3(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad,0,37)
-        (plan, fraction) = ur_control.go_cartesian_path2(waypts,velscale=bucketVelScale)
-        # listener.clear_finish_flag()
-        # listener.zero_ft_sensor()
-        # ur_control.set_speed_slider(bucketVelScale)
-        # ur_control.group.execute(plan, wait=True)
-        # rospy.sleep(0.5)
+        (plan, fraction) = ur_control.go_cartesian_path2(waypts,execute=execute,velscale=bucketVelScale)
+        if execute == False:
+            listener.clear_finish_flag()
+            listener.zero_ft_sensor()
+            ur_control.set_speed_slider(bucketVelScale)
+            ur_control.group.execute(plan, wait=False)
+            rospy.sleep(0.5)
 
         ## --- [force monitor] ---
         rospy.loginfo('clear_finish_flag')
