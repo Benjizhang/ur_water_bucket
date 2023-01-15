@@ -127,6 +127,57 @@ def urGivenPath2(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad):
         waypoints1.append(copy.deepcopy(wpose))
     return waypoints1
 
+## with varying angles along paths
+## with given iteration interval [ite_start,ite_end)
+def urGivenPath3(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad,ite_start,ite_end):
+    ## ur
+    waypoints1 = []
+    wpose = ur_control.group.get_current_pose().pose
+
+    ## given path info
+    f = open(file_dir,'rb')
+    data = pickle.load(f)
+    paths_xyz = data['loader_pos_trajs']
+    paths_theta = data['loader_rot_trajs']
+    num_path = np.shape(paths_xyz)[0]
+    path_length = data['episode_length']
+
+    ## path xyz R^{75*3}
+    cur_path_xyz = paths_xyz[path_id,:,:]
+    ## theta (rad) R^{75*1}
+    rot_traj = paths_theta[path_id,:,:]
+
+    for i in range(ite_start,ite_end):
+        ## position in Shiyu's frame
+        x_shiyu = cur_path_xyz[i,0]
+        y_shiyu = cur_path_xyz[i,1]
+        z_shiyu = cur_path_xyz[i,2]
+        theta_deg_shiyu = np.degrees(rot_traj[i,0])
+        theta_rad_shiyu = rot_traj[i,0]
+
+        ## convert shiyu frame to UR frame (global)
+        x_global = z_shiyu + oigin_pt[0]
+        y_global = -x_shiyu+ oigin_pt[1]
+        z_global = y_shiyu + oigin_pt[2]
+
+        wpose.position.x = x_global
+        wpose.position.y = y_global
+        wpose.position.z = z_global        
+
+        ## quaternion in global frame
+        theta_rad_global = -theta_rad_shiyu
+        r = R.from_euler('y', theta_rad_global+oigin_angle_rad)
+        # r_rotmat = R.from_euler('y', theta_rad_global).as_matrix()
+        quat_global = r.as_quat()
+        
+        wpose.orientation.x = quat_global[0]
+        wpose.orientation.y = quat_global[1]
+        wpose.orientation.z = quat_global[2]
+        wpose.orientation.w = quat_global[3]
+
+        waypoints1.append(copy.deepcopy(wpose))
+    return waypoints1
+
 
 if __name__ == '__main__':
     rospy.init_node("test_move")
@@ -206,8 +257,8 @@ if __name__ == '__main__':
     CUR_SAFE_FORCE = 15.0  #(default: 15N) # <<<<<<
     
     # folder name
-    expFolderName = '/20230112_UR_EEVel_circled' # <<<<<<
-    NutStorePath = '/home/zhangzeqing/Nutstore Files/Nutstore/02Wedge'
+    expFolderName = '/20230115_exp' # <<<<<<
+    NutStorePath = '/home/zhangzeqing/Nutstore Files/Nutstore/water_manipulate'
     dataPath = NutStorePath+expFolderName+'/data'
     figPath = NutStorePath+expFolderName+'/fig'
     bagPath = '/home/zhangzeqing/ur5_ws/src/ur_control/logs' #'/home/zhangzeqing/rosbag'
@@ -424,20 +475,30 @@ if __name__ == '__main__':
         # endregion
 
         ## [bucket] generate waypts along bucket path
-        bucketVelScale=0.1
+        bucketVelScale=1
         expFolderName = '/home/zhangzeqing/ur5_ws/src/ur_water_bucket/data'
         fileName = '/bucket_targeted_amount_0.6_saved_trajs.pkl'
         file_dir = expFolderName+fileName
         path_id = 0
-        # waypts = urGivenPath(ur_control,file_dir,path_id,oigin_pt)
-        waypts = urGivenPath2(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad)
-        ## [bucket] plan & execute
-        (plan, fraction) = ur_control.go_cartesian_path(waypts,execute=False)
-        listener.clear_finish_flag()
-        ur_control.set_speed_slider(bucketVelScale)
-        listener.zero_ft_sensor()
-        rospy.sleep(0.5)
-        ur_control.group.execute(plan, wait=False)
+
+        # # waypts = urGivenPath(ur_control,file_dir,path_id,oigin_pt)
+        # waypts = urGivenPath2(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad)
+        # ## [bucket] plan & execute
+        # (plan, fraction) = ur_control.go_cartesian_path(waypts,execute=False)
+        # listener.clear_finish_flag()
+        # ur_control.set_speed_slider(bucketVelScale)
+        # listener.zero_ft_sensor()
+        # rospy.sleep(0.5)
+        # ur_control.group.execute(plan, wait=False)
+        
+        
+        waypts = urGivenPath3(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad,0,37)
+        (plan, fraction) = ur_control.go_cartesian_path2(waypts,velscale=bucketVelScale)
+        # listener.clear_finish_flag()
+        # listener.zero_ft_sensor()
+        # ur_control.set_speed_slider(bucketVelScale)
+        # ur_control.group.execute(plan, wait=True)
+        # rospy.sleep(0.5)
 
         ## --- [force monitor] ---
         rospy.loginfo('clear_finish_flag')
