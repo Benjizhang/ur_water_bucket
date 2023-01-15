@@ -372,8 +372,8 @@ if __name__ == '__main__':
         rospy.sleep(0.5)
 
     ## start the loop
-    for slide_id in range(1,2): # <<<<<<
-        print("--------- {}-th path ---------".format(slide_id))
+    for cur_path_id in range(0,1): # <<<<<<
+        print("--------- {}-th path ---------".format(cur_path_id))
         ## record the start x,y (i.e., current pos) in UR frame (world frame in sand box)
         wpose = ur_control.group.get_current_pose().pose
         x_s_wldf = wpose.position.x
@@ -434,8 +434,8 @@ if __name__ == '__main__':
         file_dir = expFolderName+fileName
         path_id = 0
 
-        # # waypts = urGivenPath(ur_control,file_dir,path_id,oigin_pt)
-        # waypts = urGivenPath2(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad)
+        # # waypts = urGivenPath(ur_control,file_dir,cur_path_id,oigin_pt)
+        # waypts = urGivenPath2(ur_control,file_dir,cur_path_id,oigin_pt,oigin_angle_rad)
         # ## [bucket] plan & execute
         # (plan, fraction) = ur_control.go_cartesian_path(waypts,execute=False)
         # listener.clear_finish_flag()
@@ -446,7 +446,7 @@ if __name__ == '__main__':
         
         
         execute = False
-        waypts = urGivenPath3(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad,0,37)
+        waypts = urGivenPath3(ur_control,file_dir,cur_path_id,oigin_pt,oigin_angle_rad,0,37)
         (plan, fraction) = ur_control.go_cartesian_path2(waypts,execute=execute,velscale=bucketVelScale)
         if execute == False:
             listener.clear_finish_flag()
@@ -492,13 +492,14 @@ if __name__ == '__main__':
         if isSaveForce ==  1:
             ## log: x_rela, z_rela, force val, force dir             
             allData = zip(rela_x_ls,rela_z_ls)                           
-            with open('{}/{}_path{}_rela_xz.csv'.format(dataPath,now_date,slide_id),'a',newline="\n")as f:
+            with open('{}/{}_path{}_rela_xz.csv'.format(dataPath,now_date,cur_path_id),'a',newline="\n")as f:
                 f_csv = csv.writer(f) # <<<<<<
                 for row in allData:
                     f_csv.writerow(row)
             f.close()
         
-        rospy.loginfo('{}-th path finished'.format(slide_id))
+        rospy.loginfo('{}-th path finished'.format(cur_path_id))
+    # end of for-loop
 
     # if isRecord == 1:
     #     recorder.stop()
