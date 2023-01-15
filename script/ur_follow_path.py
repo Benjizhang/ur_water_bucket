@@ -372,8 +372,8 @@ if __name__ == '__main__':
         rospy.sleep(0.5)
 
     ## start the loop
-    for slide_id in range(1,2): # <<<<<<
-        print("--------- {}-th path ---------".format(slide_id))
+    for cur_path_id in range(0,1): # <<<<<<
+        print("--------- {}-th path ---------".format(cur_path_id))
         ## record the start x,y (i.e., current pos) in UR frame (world frame in sand box)
         wpose = ur_control.group.get_current_pose().pose
         x_s_wldf = wpose.position.x
@@ -394,7 +394,7 @@ if __name__ == '__main__':
         ds_ite_ls = []
         maxForward_ls = []  
         rela_x_ls = [] # relative x 
-        rela_y_ls = []
+        rela_z_ls = []
         boa_ite_ls = []
         boa_x_ls = []
         boa_y_ls = []
@@ -426,53 +426,6 @@ if __name__ == '__main__':
         ## jamming detection parameters
         jc_zscore_bar = 4.5 #<<<< NEW ADD
         jdcond2 = 0 #<<<< NEW ADD
-        ## goal
-        # x_e_wldf = initPtx + 0.12
-        # y_e_wldf = initPty + 0.3
-
-        ## circle+line (a.k.a. spiral traj.)
-        # region
-        # # _,_,waypts = urCentOLine(ur_control,0.01,0.01,[x_e_wldf,y_e_wldf])
-        # # _,_,waypts = urCentOLine_sim(ur_control,traj_radius,0.01,[x_e_wldf,y_e_wldf])
-        # # waypts = urCentOLine2(ur_control,traj_radius,0.01,[x_s_wldf,y_s_wldf],[x_e_wldf,y_e_wldf])
-        # waypts = urCircleLine(ur_control,traj_radius,0.01,[x_s_wldf,y_s_wldf],[x_e_wldf,y_e_wldf])
-        # # _,_,Ocent,waypts = urCent2Circle(ur_control,traj_radius,1,False)
-        # (plan, fraction) = ur_control.go_cartesian_path(waypts,execute=False)
-        # ## move along the generated path
-        # listener.clear_finish_flag()
-        # ur_control.set_speed_slider(normalVelScale)
-        # listener.zero_ft_sensor()
-        # rospy.sleep(0.5)
-        # ur_control.group.execute(plan, wait=False)
-        # endregion
-
-        # go to the goal (line)
-        # region
-        # linearVelScale = 0.1
-        # ur_control.set_speed_slider(linearVelScale)
-        # waypoints = []
-        # wpose.position.x = x_e_wldf
-        # wpose.position.y = y_e_wldf
-        # waypoints.append(copy.deepcopy(wpose))
-        # (plan, fraction) = ur_control.go_cartesian_path(waypoints,execute=False)
-        # listener.clear_finish_flag()
-        # listener.zero_ft_sensor()
-        # rospy.sleep(0.5)
-        # ur_control.group.execute(plan, wait=False)
-        # endregion
-
-        ## circular motion 
-        # region
-        # circleVelScale=0.3
-        # num_circle = 5
-        # waypts = urCircle(ur_control,traj_radius,[x_s_wldf,y_s_wldf],num_circle)
-        # (plan, fraction) = ur_control.go_cartesian_path(waypts,execute=False)
-        # listener.clear_finish_flag()
-        # ur_control.set_speed_slider(circleVelScale)
-        # listener.zero_ft_sensor()
-        # rospy.sleep(0.5)
-        # ur_control.group.execute(plan, wait=False)
-        # endregion
 
         ## [bucket] generate waypts along bucket path
         bucketVelScale=1
@@ -481,8 +434,8 @@ if __name__ == '__main__':
         file_dir = expFolderName+fileName
         path_id = 0
 
-        # # waypts = urGivenPath(ur_control,file_dir,path_id,oigin_pt)
-        # waypts = urGivenPath2(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad)
+        # # waypts = urGivenPath(ur_control,file_dir,cur_path_id,oigin_pt)
+        # waypts = urGivenPath2(ur_control,file_dir,cur_path_id,oigin_pt,oigin_angle_rad)
         # ## [bucket] plan & execute
         # (plan, fraction) = ur_control.go_cartesian_path(waypts,execute=False)
         # listener.clear_finish_flag()
@@ -493,7 +446,7 @@ if __name__ == '__main__':
         
         
         execute = False
-        waypts = urGivenPath3(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad,0,37)
+        waypts = urGivenPath3(ur_control,file_dir,cur_path_id,oigin_pt,oigin_angle_rad,0,37)
         (plan, fraction) = ur_control.go_cartesian_path2(waypts,execute=execute,velscale=bucketVelScale)
         if execute == False:
             listener.clear_finish_flag()
@@ -519,72 +472,34 @@ if __name__ == '__main__':
                     rospy.loginfo('[{}] ==== [MaxForce] Warning ==== \n'.format(ite-1))
                     ur_control.group.stop()
                     flargeFlag = True
-                    ## pub probe state (get force threshold)
-                    probe.pub_probe_state(probe.state.FORCE_THRESHOLD)
                     break 
+                    
+                ## log list
+                cur_pos = ur_control.group.get_current_pose().pose
+                listener.pub_ee_pose(cur_pos)
+                curx = cur_pos.position.x
+                curz = cur_pos.position.z
+                
+                rela_x_ls.append(round(curx - oigin_pt[0],4))
+                rela_z_ls.append(round(curz - oigin_pt[2],4))  
+
                 ite = ite+1
             
         ## end of while loop
-        ## record outlier info of last episode
-        curEps_outlier_log_ls = [curEps_cntOut95, curEps_cntOut99, \
-                            len(curEps_ite_out99_ls),curEps_ite_out99_ls, \
-                            len(curEps_zscore_out99_ls),curEps_zscore_out99_ls,\
-                            len(curEps_LRslope_ls),curEps_LRslope_ls]
-        outlier_log_ls.append(curEps_outlier_log_ls)
-        curEps_outlier_log_ls = []
-
-        # record last situation when meet the large force
-        if flargeFlag == 1:
-            df_ls.append(round(f_val,4))
-            dr_ls.append(round(f_dir,4))
-            df_raw_x_ls.append(f_val_raw_x)
-            df_raw_y_ls.append(f_val_raw_y)
-            df_filt_x_ls.append(f_val_filt_x)
-            df_filt_y_ls.append(f_val_filt_y)
-            cur_pos = ur_control.group.get_current_pose().pose
-            curx = cur_pos.position.x
-            cury = cur_pos.position.y
-            rela_x_ls.append(round(curx - originx,4))
-            rela_y_ls.append(round(cury - originy,4))
 
         now_date = time.strftime("%m%d%H%M%S", time.localtime())
         ## log (external)
         if isSaveForce ==  1:
-            ## log: x_rela, y_rela, force val, force dir             
-            allData = zip(rela_x_ls,rela_y_ls,df_ls,dr_ls,vel2d_ls)                           
-            with open('{}/{}_path{}_Fdvaldirvel.csv'.format(dataPath,now_date,slide_id),'a',newline="\n")as f:
+            ## log: x_rela, z_rela, force val, force dir             
+            allData = zip(rela_x_ls,rela_z_ls)                           
+            with open('{}/{}_path{}_rela_xz.csv'.format(dataPath,now_date,cur_path_id),'a',newline="\n")as f:
                 f_csv = csv.writer(f) # <<<<<<
                 for row in allData:
                     f_csv.writerow(row)
-            f.close()
-
-            ## log: ite - center distance
-            allData = zip(ds_ite_ls,ds_ls)
-            with open('{}/{}_path{}_Distance.csv'.format(dataPath,now_date,slide_id),'a',newline="\n")as f:
-                f_csv = csv.writer(f) # <<<<<<
-                for row in allData:
-                    f_csv.writerow(row)
-            f.close()
-
-            ## log: 4 info. on BOA                
-            allData = zip(boa_ite_ls,boa_x_ls,boa_y_ls,boa_return_ls)
-            with open('{}/{}_path{}_BOA.csv'.format(dataPath,now_date,slide_id),'a',newline="\n")as f:
-                f_csv = csv.writer(f) # <<<<<<
-                ## record the start and goal (relative)
-                tempRow = [x_s_wldf-originx, y_s_wldf-originy, x_e_wldf-originx, y_e_wldf-originy]
-                f_csv.writerow(tempRow)
-                for row in allData:
-                    f_csv.writerow(row)
-            f.close()
-
-            with open('{}/{}_path{}_Outliers.csv'.format(dataPath,now_date,slide_id),'a',newline="\n")as f:
-                f_csv = csv.writer(f) # <<<<<<
-                ## total # outliers during the whole process
-                f_csv.writerow(ite_out95_ls)
-                f_csv.writerow(ite_out99_ls)                  
             f.close()
         
-        rospy.loginfo('{}-th path finished'.format(slide_id))
+        rospy.loginfo('{}-th path finished'.format(cur_path_id))
+    # end of for-loop
 
     # if isRecord == 1:
     #     recorder.stop()
