@@ -373,7 +373,7 @@ if __name__ == '__main__':
 
     ## start the loop
     for slide_id in range(1,2): # <<<<<<
-        print("--------- {}-th slide ---------".format(slide_id))
+        print("--------- {}-th path ---------".format(slide_id))
         ## record the start x,y (i.e., current pos) in UR frame (world frame in sand box)
         wpose = ur_control.group.get_current_pose().pose
         x_s_wldf = wpose.position.x
@@ -500,7 +500,6 @@ if __name__ == '__main__':
             listener.zero_ft_sensor()
             ur_control.set_speed_slider(bucketVelScale)
             ur_control.group.execute(plan, wait=False)
-            rospy.sleep(0.5)
 
         ## --- [force monitor] ---
         rospy.loginfo('clear_finish_flag')
@@ -513,15 +512,6 @@ if __name__ == '__main__':
             f_dir = listener.get_force_dir()
             _,f_val_raw_x,f_val_raw_y = listener.get_force_val_xy()
             f_val,f_val_filt_x,f_val_filt_y = listener.get_force_val_xy_filtered()
-            ## measure the tip velocities (6D)
-            # eetwist = ur_control.get_ee_twist()
-            # print('twist:{}'.format(eetwist))
-            # vx = eetwist[0]
-            # vy = eetwist[1]
-            # vxy = np.sqrt(vx**2+vy**2)
-            # print(f'vel xy: {vxy}')
-            # vel2d = np.linalg.norm(eetwist[:2])
-            # print(f'vel 2d: {vel2d}')
 
             if f_val is not None:                
                 ## most conservative way (most safe)
@@ -557,22 +547,12 @@ if __name__ == '__main__':
             rela_x_ls.append(round(curx - originx,4))
             rela_y_ls.append(round(cury - originy,4))
 
-        # go back to the goal (if use urCircleLine() and complete the whole spiral traj.)
-        # if flargeFlag == 0:
-        #     waypoints_goal = []
-        #     wpose = ur_control.group.get_current_pose().pose
-        #     wpose.position.x = x_e_wldf
-        #     wpose.position.y = y_e_wldf
-        #     waypoints_goal.append(copy.deepcopy(wpose))
-        #     (plan, fraction) = ur_control.go_cartesian_path(waypoints_goal,execute=False)
-        #     ur_control.group.execute(plan, wait=True)
-
         now_date = time.strftime("%m%d%H%M%S", time.localtime())
         ## log (external)
         if isSaveForce ==  1:
             ## log: x_rela, y_rela, force val, force dir             
             allData = zip(rela_x_ls,rela_y_ls,df_ls,dr_ls,vel2d_ls)                           
-            with open('{}/{}_slide{}_Fdvaldirvel.csv'.format(dataPath,now_date,slide_id),'a',newline="\n")as f:
+            with open('{}/{}_path{}_Fdvaldirvel.csv'.format(dataPath,now_date,slide_id),'a',newline="\n")as f:
                 f_csv = csv.writer(f) # <<<<<<
                 for row in allData:
                     f_csv.writerow(row)
@@ -580,7 +560,7 @@ if __name__ == '__main__':
 
             ## log: ite - center distance
             allData = zip(ds_ite_ls,ds_ls)
-            with open('{}/{}_slide{}_Distance.csv'.format(dataPath,now_date,slide_id),'a',newline="\n")as f:
+            with open('{}/{}_path{}_Distance.csv'.format(dataPath,now_date,slide_id),'a',newline="\n")as f:
                 f_csv = csv.writer(f) # <<<<<<
                 for row in allData:
                     f_csv.writerow(row)
@@ -588,7 +568,7 @@ if __name__ == '__main__':
 
             ## log: 4 info. on BOA                
             allData = zip(boa_ite_ls,boa_x_ls,boa_y_ls,boa_return_ls)
-            with open('{}/{}_slide{}_BOA.csv'.format(dataPath,now_date,slide_id),'a',newline="\n")as f:
+            with open('{}/{}_path{}_BOA.csv'.format(dataPath,now_date,slide_id),'a',newline="\n")as f:
                 f_csv = csv.writer(f) # <<<<<<
                 ## record the start and goal (relative)
                 tempRow = [x_s_wldf-originx, y_s_wldf-originy, x_e_wldf-originx, y_e_wldf-originy]
@@ -597,50 +577,14 @@ if __name__ == '__main__':
                     f_csv.writerow(row)
             f.close()
 
-            ## log: x_rela, y_rela, Fx_raw, Fy_raw, ForceDir
-            # allData = zip(rela_x_ls,rela_y_ls,df_raw_x_ls,df_raw_y_ls,dr_ls)     
-            # with open('{}/{}_slide{}_xyFxFydr.csv'.format(dataPath,now_date,slide_id),'a',newline="\n")as f:
-            #     f_csv = csv.writer(f) # <<<<<<
-            #     for row in allData:
-            #         f_csv.writerow(row)
-            # f.close()
-
-            ## log: iteration records for outliers occur    
-            # with open('{}/{}_slide{}_iteOutliers.csv'.format(dataPath,now_date,slide_id),'a',newline="\n")as f:
-            #     f_csv = csv.writer(f) # <<<<<<
-            #     f_csv.writerow(ite_out95_ls)
-            #     f_csv.writerow(ite_out99_ls)
-            # f.close()
-
-            with open('{}/{}_slide{}_Outliers.csv'.format(dataPath,now_date,slide_id),'a',newline="\n")as f:
+            with open('{}/{}_path{}_Outliers.csv'.format(dataPath,now_date,slide_id),'a',newline="\n")as f:
                 f_csv = csv.writer(f) # <<<<<<
                 ## total # outliers during the whole process
                 f_csv.writerow(ite_out95_ls)
                 f_csv.writerow(ite_out99_ls)                  
-            f.close()            
-
-            ## log: Fx,Fy_raw,_filtered
-            # allData = zip(df_raw_x_ls,df_raw_y_ls,df_filt_x_ls,df_filt_y_ls)     
-            # with open('{}/{}_slide{}_FxFyrawfilt.csv'.format(dataPath,now_date,slide_id),'a',newline="\n")as f:
-            #     f_csv = csv.writer(f) # <<<<<<
-            #     for row in allData:
-            #         f_csv.writerow(row)
-            # f.close()
-
-        ## if no jamming, plot it， and ds_ls not empty
-        # if isPlotJD and not flargeFlag and ds_ls:
-        #         ds_adv = round(ds_obj-ds_ls[-1], 3) # >0 in theory
-        #         title_str = 'Exp{}: ds [{},{}], Dep {}, Vel {}, Ite {}, NoJD'.format(slide_id,ds_min,np.inf,PENE_DEPTH,normalVelScale,len(df_ls))
-        #         JDlib.plotJDRes(ds_obj,title_str,figPath,slide_id)
-
-        ## plot BOA results
-        # tempCurPos = ur_control.group.get_current_pose().pose.position
-        # probeCurPt = [tempCurPos.x-originx,tempCurPos.y-originy]
-        ## Def: plot_2d2(slide_id, bo, util, kernel,x,y,XY, f_max, fig_path, name=None)
-        # plot_2d4(slide_id, bo, util, kernel, xrange,yrange,XY, CUR_SAFE_FORCE, figPath+'/{}_slide{}_'.format(now_date,slide_id),
-        #         probeCurPt, object_shape, "{:03}".format(len(bo._space.params)))
+            f.close()
         
-        rospy.loginfo('{}-th slide finished'.format(slide_id))
+        rospy.loginfo('{}-th path finished'.format(slide_id))
 
     # if isRecord == 1:
     #     recorder.stop()
