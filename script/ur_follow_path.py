@@ -142,6 +142,9 @@ def urGivenPath3(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad,ite_start,
     num_path = np.shape(paths_xyz)[0]
     path_length = data['episode_length']
 
+    if path_id >= num_path:
+        raise Exception('path id error')
+
     ## path xyz R^{75*3}
     cur_path_xyz = paths_xyz[path_id,:,:]
     ## theta (rad) R^{75*1}
