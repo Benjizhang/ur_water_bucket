@@ -102,8 +102,10 @@ waterline_trajs = data['waterline_trajs'] # 5*75*1
 # endregion
 
 ## 3D plot in global(UR) frame i.e., path x-z plane
-width = 0.05/2
-height = 0.025/2
+width = 0.12
+height = 0.055
+teeth_w = 0.16
+teeth_h = 0.127
 position_x = .1
 position_y = .4
 init_color_matrix = [[1.,0.], [1.,0.]]
@@ -148,7 +150,8 @@ for path_id in range(num_path):
         ## (rectangle)
         # rect_pts_temp = np.array([[0,0,height/2],[width,0,height/2],[width,0,-height/2],[0,0,-height/2]]).T
         ## (5pts) 3*5
-        rect_pts_temp = np.array([[0,0,height/2],[width/2,0,height/2],[3*width/2,0,3*height/2],[width,0,-height/2],[0,0,-height/2]]).T
+        # rect_pts_temp = np.array([[0,0,height/2],[width/2,0,height/2],[3*width/2,0,3*height/2],[width,0,-height/2],[0,0,-height/2]]).T
+        rect_pts_temp = np.array([[0,0,height/2],[width/2,0,height/2],[teeth_w,0,teeth_h-height/2],[width,0,-height/2],[0,0,-height/2]]).T
         rect_pts_temp = np.hstack((rect_pts_temp,rect_pts_temp[:,0].reshape(3,-1)))
         # rect_pts_temp = np.array([width,0,0]).reshape(-1,1)
         # np.matmul(R,vect) + waypts[i,:].reshape(2,1)
