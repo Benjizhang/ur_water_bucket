@@ -121,8 +121,9 @@ for path_id in range(num_path):
     rot_traj = paths_theta[path_id,:,:]
     # water line height
     waterline_h = waterline_trajs[path_id,:,:]/1000
+    first_waterline_h = waterline_h[0,0]
     mean_waterline_h = np.mean(waterline_h)
-    print(f'first waterline_h: {waterline_h[0]}')
+    print(f'first waterline_h: {first_waterline_h}')
     print(f'mean of waterline_h: {mean_waterline_h}')
     if plot_waterline == 1:
         fig2 = plt.figure(figsize = (10,10))
@@ -207,9 +208,15 @@ for path_id in range(num_path):
     ax.scatter(x_start_global,y_start_global,z_start_global, marker="o", color="red", s = 40,label="start")
     ax.scatter(x_goal_global,y_goal_global,z_goal_global, marker="x", color="red", s = 40,label="goal")
 
+    # plot water line
+    x_waterline = np.array([-0.2,0.3])
+    y_waterline = np.array([0,0])
+    z_waterline = np.array([first_waterline_h,first_waterline_h])
+    ax.plot3D(x_waterline,y_waterline,z_waterline,color="blue",label = 'waterline')
+
     ax.axis('scaled')
     ax.set_xlim([-0.2,0.3])
-    ax.set_zlim([0.1,0.7])
+    ax.set_zlim([0.,0.7])
     ax.axis('scaled')
     ax.set_xlabel('x', labelpad=5)
     ax.set_ylabel('y', labelpad=5)
