@@ -555,6 +555,15 @@ if __name__ == '__main__':
                     f_csv.writerow(row)
             f.close()
         
+        # lift up
+        if flargeFlag == True:
+            waypoints = []
+            wpose = ur_control.group.get_current_pose().pose
+            wpose.position.z = sp.SAFEZ
+            waypoints.append(copy.deepcopy(wpose))
+            (plan, fraction) = ur_control.go_cartesian_path(waypoints,execute=False)
+            ur_control.group.execute(plan, wait=True)
+        
         rospy.loginfo('{}-th path finished'.format(cur_path_id))
     # end of for-loop
 
