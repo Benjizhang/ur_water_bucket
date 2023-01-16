@@ -112,18 +112,34 @@ init_color_matrix = [[1.,0.], [1.,0.]]
 
 ### [bucket] oigin of shiyu frame expressed in global frame
 oigin_pt = np.array([0.,0.,0.])
+plot_waterline = 1
 
 for path_id in range(num_path):
-    fig = plt.figure(figsize = (10,10))
-    ax = plt.axes(projection='3d')
-    # ax.view_init(17,82)
-    ax.view_init(0,-90)
-
     # path xyz R^{75*3}
     cur_path_xyz = paths_xyz[path_id,:,:]
     # theta (rad) R^{75*1}
     rot_traj = paths_theta[path_id,:,:]
+    # water line height
+    waterline_h = waterline_trajs[path_id,:,:]/1000
+    mean_waterline_h = np.mean(waterline_h)
+    print(f'first waterline_h: {waterline_h[0]}')
+    print(f'mean of waterline_h: {mean_waterline_h}')
+    if plot_waterline == 1:
+        fig2 = plt.figure(figsize = (10,10))
+        ax2 = plt.axes()
+        ax2.plot(waterline_h)
+        ax2.set_xlabel('time_step', labelpad=5)
+        ax2.set_ylabel('height (m)', labelpad=5) 
+        ax2.set_ylim([0.,0.3])
+        plt.grid()
+        plt.show()
+    
 
+
+    fig = plt.figure(figsize = (10,10))
+    ax = plt.axes(projection='3d')
+    # ax.view_init(17,82)
+    ax.view_init(0,-90)
     for i in range(37):
         ## in Shiyu's frame
         x_shiyu = cur_path_xyz[i,0]
