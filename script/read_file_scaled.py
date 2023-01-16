@@ -102,26 +102,45 @@ waterline_trajs = data['waterline_trajs'] # 5*75*1
 # endregion
 
 ## 3D plot in global(UR) frame i.e., path x-z plane
-width = 0.05/2
-height = 0.025/2
+width = 0.12
+height = 0.055
+teeth_w = 0.16
+teeth_h = 0.127
 position_x = .1
 position_y = .4
 init_color_matrix = [[1.,0.], [1.,0.]]
 
 ### [bucket] oigin of shiyu frame expressed in global frame
 oigin_pt = np.array([0.,0.,0.])
+plot_waterline = 1
 
 for path_id in range(num_path):
-    fig = plt.figure(figsize = (10,10))
-    ax = plt.axes(projection='3d')
-    # ax.view_init(17,82)
-    ax.view_init(0,-90)
-
     # path xyz R^{75*3}
     cur_path_xyz = paths_xyz[path_id,:,:]
     # theta (rad) R^{75*1}
     rot_traj = paths_theta[path_id,:,:]
+    # water line height
+    waterline_h = waterline_trajs[path_id,:,:]/1000
+    first_waterline_h = waterline_h[0,0]
+    mean_waterline_h = np.mean(waterline_h)
+    print(f'first waterline_h: {first_waterline_h}')
+    print(f'mean of waterline_h: {mean_waterline_h}')
+    if plot_waterline == 1:
+        fig2 = plt.figure(figsize = (10,10))
+        ax2 = plt.axes()
+        ax2.plot(waterline_h)
+        ax2.set_xlabel('time_step', labelpad=5)
+        ax2.set_ylabel('height (m)', labelpad=5) 
+        ax2.set_ylim([0.,0.3])
+        plt.grid()
+        plt.show()
+    
 
+
+    fig = plt.figure(figsize = (10,10))
+    ax = plt.axes(projection='3d')
+    # ax.view_init(17,82)
+    ax.view_init(0,-90)
     for i in range(37):
         ## in Shiyu's frame
         x_shiyu = cur_path_xyz[i,0]
@@ -148,7 +167,8 @@ for path_id in range(num_path):
         ## (rectangle)
         # rect_pts_temp = np.array([[0,0,height/2],[width,0,height/2],[width,0,-height/2],[0,0,-height/2]]).T
         ## (5pts) 3*5
-        rect_pts_temp = np.array([[0,0,height/2],[width/2,0,height/2],[3*width/2,0,3*height/2],[width,0,-height/2],[0,0,-height/2]]).T
+        # rect_pts_temp = np.array([[0,0,height/2],[width/2,0,height/2],[3*width/2,0,3*height/2],[width,0,-height/2],[0,0,-height/2]]).T
+        rect_pts_temp = np.array([[0,0,height/2],[width/2,0,height/2],[teeth_w,0,teeth_h-height/2],[width,0,-height/2],[0,0,-height/2]]).T
         rect_pts_temp = np.hstack((rect_pts_temp,rect_pts_temp[:,0].reshape(3,-1)))
         # rect_pts_temp = np.array([width,0,0]).reshape(-1,1)
         # np.matmul(R,vect) + waypts[i,:].reshape(2,1)
@@ -188,9 +208,15 @@ for path_id in range(num_path):
     ax.scatter(x_start_global,y_start_global,z_start_global, marker="o", color="red", s = 40,label="start")
     ax.scatter(x_goal_global,y_goal_global,z_goal_global, marker="x", color="red", s = 40,label="goal")
 
+    # plot water line
+    x_waterline = np.array([-0.2,0.3])
+    y_waterline = np.array([0,0])
+    z_waterline = np.array([first_waterline_h,first_waterline_h])
+    ax.plot3D(x_waterline,y_waterline,z_waterline,color="blue",label = 'waterline')
+
     ax.axis('scaled')
     ax.set_xlim([-0.2,0.3])
-    ax.set_zlim([0.1,0.7])
+    ax.set_zlim([0.,0.7])
     ax.axis('scaled')
     ax.set_xlabel('x', labelpad=5)
     ax.set_ylabel('y', labelpad=5)
