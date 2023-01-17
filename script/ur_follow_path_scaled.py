@@ -391,13 +391,22 @@ if __name__ == '__main__':
     # go2GivenPoseSP(ur_control,sp,test_pose)
     # rospy.sleep(0.5)
 
-    ## go the init pos of the exp 
-    # init_pose = [0 for hh in range(0,3)]
-    # init_pose[0] = originx + 0.085 - 0.005*6
-    # init_pose[1] = originy + 0.1
-    # init_pose[2] = sp.SAFEZ
-    # go2GivenPoseSP(ur_control,sp,init_pose)
-    # rospy.sleep(0.5)
+    
+    ## horizonal angle
+    hori_angle_rad = -4.251274840994698
+
+    ## measure water weight of full bucket 
+    # waypoints11 = []
+    # wpose = ur_control.group.get_current_pose().pose
+    # r_dump = R.from_euler('y', hori_angle_rad)
+    # quat_dump = r_dump.as_quat()        
+    # wpose.orientation.x = quat_dump[0]
+    # wpose.orientation.y = quat_dump[1]
+    # wpose.orientation.z = quat_dump[2]
+    # wpose.orientation.w = quat_dump[3]
+    # waypoints11.append(copy.deepcopy(wpose))
+    # (plan, fraction) = ur_control.go_cartesian_path(waypoints11,execute=False)
+    # ur_control.group.execute(plan, wait=True)
 
     ## [scale] position
     x_pos_scale = -0.42317078158291194
@@ -597,8 +606,6 @@ if __name__ == '__main__':
         
         if needScale == 1 and flargeFlag != True:
             # go to scale position
-            ## horizonal angle
-            hori_angle_rad = -4.251274840994698
             waypoints_dump = []
 
             ## over the sacle
