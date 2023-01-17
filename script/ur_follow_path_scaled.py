@@ -408,6 +408,7 @@ if __name__ == '__main__':
 
     ## [bucket] start point x=0,y=0.45,z=0 expressed in shiyu frame 
     start_pt = [-0.54943859455702817, 0.10205824512513274,0.08795793366304825]
+    start_pt[0] += 0.05
     start_pt[1] -= 0.05
     start_pt[2] -= 0.005
     waypoints = []
@@ -513,7 +514,7 @@ if __name__ == '__main__':
         jdcond2 = 0 #<<<< NEW ADD
 
         ## [bucket] generate waypts along bucket path
-        bucketVelScale=0.3
+        bucketVelScale=1.0
         expFolderName = '/home/zhangzeqing/ur5_ws/src/ur_water_bucket/data'
         fileName = '/scaled_bucket_targeted_amount_0.6_saved_trajs.pkl'
         file_dir = expFolderName+fileName
