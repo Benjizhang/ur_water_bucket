@@ -225,9 +225,9 @@ def urGivenPath4(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad,ite_start,
         ## quaternion in global frame
         theta_rad_global = -theta_rad_shiyu
         r = R.from_euler('y', theta_rad_global+oigin_angle_rad)
-
+        r_rela = R.from_euler('y', theta_rad_global)
         ## cal. xyz of EE
-        xyz_EE_global = addFT(x_global,y_global,z_global,r)
+        xyz_EE_global = addFT(x_global,y_global,z_global,r_rela)
         wpose.position.x = xyz_EE_global[0]
         wpose.position.y = xyz_EE_global[1]
         wpose.position.z = xyz_EE_global[2]
@@ -420,7 +420,8 @@ if __name__ == '__main__':
     wpose.orientation.z = quat_global[2]
     wpose.orientation.w = quat_global[3]
 
-    start_pt_EE = addFT(start_pt[0],start_pt[1],start_pt[2],r,delta_L=0.0375)
+    r_rela = R.from_euler('y', 0)
+    start_pt_EE = addFT(start_pt[0],start_pt[1],start_pt[2],r_rela,delta_L=0.0375)
     wpose.position.x = start_pt_EE[0]#+0.21 #-0.1
     wpose.position.y = start_pt_EE[1]
     wpose.position.z = start_pt_EE[2]#+0.2 #+0.2 #-0.25
