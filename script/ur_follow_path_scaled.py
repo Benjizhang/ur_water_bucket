@@ -421,7 +421,13 @@ if __name__ == '__main__':
     start_pt[1] -= 0.05
     start_pt[2] -= 0.005
     ## offset for path 1
-    start_pt[0] += 0.152
+    # start_pt[0] += 0.152
+    ## offset for path 2 [x]
+    # start_pt[0] += 0.1
+    ## offset for path 3
+    start_pt[0] += 0.18
+    ## offset for path 4 [x]
+    # start_pt[0] += 0.17
     waypoints = []
     wpose = ur_control.group.get_current_pose().pose
     # wpose.position.x = start_pt[0]#+0.21 #-0.1
@@ -469,7 +475,7 @@ if __name__ == '__main__':
         rospy.sleep(0.5)
 
     ## start the loop
-    for cur_path_id in range(1,2): # <<<<<<
+    for cur_path_id in range(3,4): # <<<<<<
         print("--------- {}-th path ---------".format(cur_path_id))
         ## record the start x,y (i.e., current pos) in UR frame (world frame in sand box)
         wpose = ur_control.group.get_current_pose().pose
