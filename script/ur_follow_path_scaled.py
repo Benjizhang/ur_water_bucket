@@ -183,6 +183,7 @@ def urGivenPath3(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad,ite_start,
 
 # to read 'scaled_xxx' files
 # unit: change to m
+# considering delta offset from FT300 sensor (0.0375m)
 def urGivenPath4(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad,ite_start,ite_end):
     ## ur
     waypoints1 = []
@@ -217,13 +218,20 @@ def urGivenPath4(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad,ite_start,
         y_global = -x_shiyu+ oigin_pt[1]
         z_global = y_shiyu + oigin_pt[2]
 
-        wpose.position.x = x_global
-        wpose.position.y = y_global
-        wpose.position.z = z_global        
+        # wpose.position.x = x_global
+        # wpose.position.y = y_global
+        # wpose.position.z = z_global        
 
         ## quaternion in global frame
         theta_rad_global = -theta_rad_shiyu
         r = R.from_euler('y', theta_rad_global+oigin_angle_rad)
+
+        ## cal. xyz of EE
+        xyz_EE_global = addFT(x_global,y_global,z_global,r)
+        wpose.position.x = xyz_EE_global[0]
+        wpose.position.y = xyz_EE_global[1]
+        wpose.position.z = xyz_EE_global[2]
+
         # r_rotmat = R.from_euler('y', theta_rad_global).as_matrix()
         quat_global = r.as_quat()
         
@@ -234,6 +242,17 @@ def urGivenPath4(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad,ite_start,
 
         waypoints1.append(copy.deepcopy(wpose))
     return waypoints1
+
+# frame transfer when adding a FT300
+# xyz is center of FT300, to cal. xyz of EE
+def addFT(x,y,z,r,delta_L=0.0375):
+    rot_mat = r.as_matrix()
+    xyz_FT = np.array([x,y,z]).reshape(-1,1)
+    delta_vec = np.array([-delta_L,0,0]).reshape(-1,1)
+    xyz_EE = np.matmul(rot_mat,delta_vec)+xyz_FT
+
+    return xyz_EE.flatten()
+
 
 
 if __name__ == '__main__':
@@ -386,9 +405,9 @@ if __name__ == '__main__':
     start_pt[2] += 0.05
     waypoints = []
     wpose = ur_control.group.get_current_pose().pose
-    wpose.position.x = start_pt[0]#+0.21 #-0.1
-    wpose.position.y = start_pt[1]
-    wpose.position.z = start_pt[2]#+0.2 #+0.2 #-0.25
+    # wpose.position.x = start_pt[0]#+0.21 #-0.1
+    # wpose.position.y = start_pt[1]
+    # wpose.position.z = start_pt[2]#+0.2 #+0.2 #-0.25
     ## [bucket] oigin of shiyu frame expressed in global frame
     oigin_pt = np.array(start_pt)-np.array([0,0,0.3])
 
@@ -400,6 +419,12 @@ if __name__ == '__main__':
     wpose.orientation.y = quat_global[1]
     wpose.orientation.z = quat_global[2]
     wpose.orientation.w = quat_global[3]
+
+    start_pt_EE = addFT(start_pt[0],start_pt[1],start_pt[2],r,delta_L=0.0375)
+    wpose.position.x = start_pt_EE[0]#+0.21 #-0.1
+    wpose.position.y = start_pt_EE[1]
+    wpose.position.z = start_pt_EE[2]#+0.2 #+0.2 #-0.25
+
     ## [bucket] return to start pt before any paths
     waypoints.append(copy.deepcopy(wpose))
     (plan, fraction) = ur_control.go_cartesian_path(waypoints,execute=False)
