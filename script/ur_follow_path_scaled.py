@@ -438,10 +438,6 @@ if __name__ == '__main__':
     (plan, fraction) = ur_control.go_cartesian_path(waypoints,execute=False)
     ur_control.group.execute(plan, wait=True)
     rospy.sleep(0.5)
-    
-    fd_nonjamming = 3  # 3N
-    fd_object = 7  # 3N
-    traj_radius = 0.01 # xx cm
 
 
     ## parameters of GPR
@@ -591,12 +587,14 @@ if __name__ == '__main__':
         if flargeFlag == True:
             waypoints = []
             wpose = ur_control.group.get_current_pose().pose
-            wpose.position.z = sp.SAFEZ
+            wpose.position.z += 0.16
             waypoints.append(copy.deepcopy(wpose))
             (plan, fraction) = ur_control.go_cartesian_path(waypoints,execute=False)
+            ur_control.set_speed_slider(0.3)
+            rospy.sleep(.5)
             ur_control.group.execute(plan, wait=True)
         
-        if needScale == 1:
+        if needScale == 1 and flargeFlag != True:
             # go to scale position
             ## horizonal angle
             hori_angle_rad = -4.251274840994698
@@ -621,7 +619,15 @@ if __name__ == '__main__':
             waypoints_dump.append(copy.deepcopy(wpose))
             (plan, fraction) = ur_control.go_cartesian_path(waypoints_dump,execute=False)
             ur_control.group.execute(plan, wait=True)
+            rospy.sleep(5)
 
+            ## move up 16cm
+            waypoints_dump = []
+            wpose.position.z += 0.16
+            waypoints_dump.append(copy.deepcopy(wpose))
+            (plan, fraction) = ur_control.go_cartesian_path(waypoints_dump,execute=False)
+            ur_control.set_speed_slider(0.3)
+            ur_control.group.execute(plan, wait=True)
 
 
         rospy.loginfo('{}-th path finished'.format(cur_path_id))
