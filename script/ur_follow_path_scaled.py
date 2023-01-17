@@ -399,6 +399,13 @@ if __name__ == '__main__':
     # go2GivenPoseSP(ur_control,sp,init_pose)
     # rospy.sleep(0.5)
 
+    ## [scale] position
+    x_pos_scale = -0.42317078158291194
+    y_pos_scale = -0.23821445105624778
+    z_pos_scale = 0.024138531318682835+0.05
+    # [scale] to scale bucket filling rate or not
+    needScale = 1
+
     ## [bucket] start point x=0,y=0.45,z=0 expressed in shiyu frame 
     start_pt = [-0.54943859455702817, 0.10205824512513274,0.08795793366304825]
     start_pt[1] -= 0.05
@@ -432,13 +439,10 @@ if __name__ == '__main__':
     ur_control.group.execute(plan, wait=True)
     rospy.sleep(0.5)
     
-    
     fd_nonjamming = 3  # 3N
     fd_object = 7  # 3N
     traj_radius = 0.01 # xx cm
 
-    # switch: w/ or w/o proximity sensing
-    wSensing = 1
 
     ## parameters of GPR
     # seasonal_kernel = ExpSineSquared(length_scale=1, periodicity=1200, periodicity_bounds=(1000, 1500))
@@ -592,6 +596,34 @@ if __name__ == '__main__':
             (plan, fraction) = ur_control.go_cartesian_path(waypoints,execute=False)
             ur_control.group.execute(plan, wait=True)
         
+        if needScale == 1:
+            # go to scale position
+            ## horizonal angle
+            hori_angle_rad = -4.251274840994698
+            waypoints_dump = []
+
+            ## over the sacle
+            wpose = ur_control.group.get_current_pose().pose
+            wpose.position.x = x_pos_scale
+            wpose.position.y = y_pos_scale
+            waypoints_dump.append(copy.deepcopy(wpose))
+
+            wpose.position.z = z_pos_scale
+            waypoints_dump.append(copy.deepcopy(wpose))
+
+            ## dump
+            r_dump = R.from_euler('y', np.deg2rad(+85)+hori_angle_rad)
+            quat_dump = r_dump.as_quat()        
+            wpose.orientation.x = quat_dump[0]
+            wpose.orientation.y = quat_dump[1]
+            wpose.orientation.z = quat_dump[2]
+            wpose.orientation.w = quat_dump[3]
+            waypoints_dump.append(copy.deepcopy(wpose))
+            (plan, fraction) = ur_control.go_cartesian_path(waypoints_dump,execute=False)
+            ur_control.group.execute(plan, wait=True)
+
+
+
         rospy.loginfo('{}-th path finished'.format(cur_path_id))
     # end of for-loop
 
