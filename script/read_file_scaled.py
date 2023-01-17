@@ -101,6 +101,16 @@ waterline_trajs = data['waterline_trajs'] # 5*75*1
 #         plt.show()
 # endregion
 
+# frame transfer when adding a FT300
+# xyz is center of FT300, to cal. xyz of EE
+def addFT(x,y,z,r,delta_L=0.0375):
+    rot_mat = r.as_matrix()
+    xyz_FT = np.array([x,y,z]).reshape(-1,1)
+    delta_vec = np.array([-delta_L,0,0]).reshape(-1,1)
+    xyz_EE = np.matmul(rot_mat,delta_vec)+xyz_FT
+    
+    return xyz_EE.flatten()
+
 ## 3D plot in global(UR) frame i.e., path x-z plane
 width = 0.12
 height = 0.055
@@ -112,7 +122,7 @@ init_color_matrix = [[1.,0.], [1.,0.]]
 
 ### [bucket] oigin of shiyu frame expressed in global frame
 oigin_pt = np.array([0.,0.,0.])
-plot_waterline = 1
+plot_waterline = 0
 
 for path_id in range(num_path):
     # path xyz R^{75*3}
@@ -153,6 +163,7 @@ for path_id in range(num_path):
         x_global = z_shiyu + oigin_pt[0]
         y_global = -x_shiyu+ oigin_pt[1]
         z_global = y_shiyu + oigin_pt[2]
+
         ## plot point
         ax.plot3D(x_global,y_global,z_global,'.')
 
@@ -161,6 +172,13 @@ for path_id in range(num_path):
         r = R.from_rotvec(theta_rad_global * np.array([0, 1, 0]))
         r_rotmat = R.from_euler('y', theta_rad_global).as_matrix()
         quat_global = r.as_quat()
+
+        ## cal. xyz of EE
+        xyz_EE_global = addFT(x_global,y_global,z_global,r)
+        # wpose.position.x = xyz_EE_global[0]
+        # wpose.position.y = xyz_EE_global[1]
+        # wpose.position.z = xyz_EE_global[2]
+        ax.plot3D(xyz_EE_global[0],xyz_EE_global[1],xyz_EE_global[2],'b.')  
         
         
         ## plot bucket outline
