@@ -1,6 +1,7 @@
 # exp: ur5 + path data from the folder 'data'
 # for scaled data
 # v2.0: exp for 0.6,0.7,0.8 pkl files
+#       long container
 #
 # Z. Zhang
 # 1/23
@@ -409,6 +410,7 @@ if __name__ == '__main__':
     # ur_control.group.execute(plan, wait=True)
 
     target_percent = 0.7
+    interesting_path = 0
     print(f'------ Target: {target_percent} ------')
 
     ## [scale] position
@@ -423,6 +425,7 @@ if __name__ == '__main__':
     start_pt[0] += 0.05
     start_pt[1] -= 0.05
     start_pt[2] -= 0.005
+    # region
     ## ----- 0.6 pkl -----
     ## offset for path 1
     # start_pt[0] += 0.152
@@ -434,7 +437,7 @@ if __name__ == '__main__':
     # start_pt[0] += 0.17
 
     ## ----- 0.7 pkl -----
-    ## offset for path 0 [x]
+    ## offset for path 0
     # start_pt[0] += 
     ## offset for path 1
     # start_pt[0] += 
@@ -456,6 +459,7 @@ if __name__ == '__main__':
     # start_pt[0] += 
     ## offset for path 4
     # start_pt[0] += 
+    # endregion
 
     waypoints = []
     wpose = ur_control.group.get_current_pose().pose
@@ -504,7 +508,7 @@ if __name__ == '__main__':
         rospy.sleep(0.5)
 
     ## start the loop
-    for cur_path_id in range(4,5): # <<<<<<
+    for cur_path_id in range(interesting_path,interesting_path+1): # <<<<<<
         print("--------- {}-th path ---------".format(cur_path_id))
         ## record the start x,y (i.e., current pos) in UR frame (world frame in sand box)
         wpose = ur_control.group.get_current_pose().pose
