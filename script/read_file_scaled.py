@@ -10,7 +10,11 @@ import matplotlib.transforms as mtransforms
 from scipy.spatial.transform import Rotation as R
 
 expFolderName = 'C:/Users/zhangzeqing/OneDrive - connect.hku.hk/B_Data/From/Shiyu, Jin'
-fileName = '/scaled_bucket_targeted_amount_0.6_saved_trajs.pkl' # unit: mm
+target_percent = 0.8
+print(f'------ Target: {target_percent} ------')
+
+# fileName = '/scaled_bucket_targeted_amount_0.6_saved_trajs.pkl' # unit: mm
+fileName = '/scaled_bucket_targeted_amount_'+str(target_percent)+'_saved_trajs.pkl' # unit: mm
 save_path = expFolderName+'/fig'
 f = open(expFolderName+fileName,'rb')
 data = pickle.load(f)
@@ -24,6 +28,7 @@ num_traj = data['num_episodes']
 path_length = data['episode_length']
 bucket_front_length = data['bucket_front_length']
 waterline_trajs = data['waterline_trajs'] # 5*75*1
+in_loader_percent_trajs = data['in_loader_percent_trajs'] # 5*75*1
 
 # region
 # for path_id in range(num_path):
@@ -133,6 +138,7 @@ for path_id in range(num_path):
     waterline_h = waterline_trajs[path_id,:,:]/1000
     first_waterline_h = waterline_h[0,0]
     mean_waterline_h = np.mean(waterline_h)
+    print(f'--*-- path {path_id} --*--')
     print(f'first waterline_h: {first_waterline_h}')
     print(f'mean of waterline_h: {mean_waterline_h}')
     if plot_waterline == 1:
@@ -178,7 +184,7 @@ for path_id in range(num_path):
         # wpose.position.x = xyz_EE_global[0]
         # wpose.position.y = xyz_EE_global[1]
         # wpose.position.z = xyz_EE_global[2]
-        ax.plot3D(xyz_EE_global[0],xyz_EE_global[1],xyz_EE_global[2],'b.')  
+        ax.plot3D(xyz_EE_global[0],xyz_EE_global[1],xyz_EE_global[2],'b.')
         
         
         ## plot bucket outline
@@ -239,6 +245,6 @@ for path_id in range(num_path):
     ax.set_xlabel('x', labelpad=5)
     ax.set_ylabel('y', labelpad=5)
     ax.set_zlabel('z', labelpad=5)   
-    ax.set_title(f'{path_id}-th path')
+    ax.set_title(f'Target {target_percent}: {path_id}-th path')
     plt.legend()
     plt.show()
