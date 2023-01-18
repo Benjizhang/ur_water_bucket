@@ -409,8 +409,8 @@ if __name__ == '__main__':
     # (plan, fraction) = ur_control.go_cartesian_path(waypoints11,execute=False)
     # ur_control.group.execute(plan, wait=True)
 
-    target_percent = 0.6
-    interesting_path = 3
+    target_percent = 0.8
+    interesting_path = 1
     print(f'------ Target: {target_percent} ------')
 
     ## [scale] position
