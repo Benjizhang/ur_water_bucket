@@ -409,8 +409,8 @@ if __name__ == '__main__':
     # (plan, fraction) = ur_control.go_cartesian_path(waypoints11,execute=False)
     # ur_control.group.execute(plan, wait=True)
 
-    target_percent = 0.7
-    interesting_path = 0
+    target_percent = 0.6
+    interesting_path = 3
     print(f'------ Target: {target_percent} ------')
 
     ## [scale] position
@@ -569,7 +569,7 @@ if __name__ == '__main__':
         jdcond2 = 0 #<<<< NEW ADD
 
         ## [bucket] generate waypts along bucket path
-        bucketVelScale=0.6
+        bucketVelScale=1.0
         expFolderName = '/home/zhangzeqing/ur5_ws/src/ur_water_bucket/data'
         fileName = '/scaled_bucket_targeted_amount_'+str(target_percent)+'_saved_trajs.pkl' # unit: mm
         file_dir = expFolderName+fileName
@@ -633,7 +633,7 @@ if __name__ == '__main__':
         if isSaveForce ==  1:
             ## log: x_rela, z_rela, force val, force dir             
             allData = zip(rela_x_ls,rela_z_ls)                           
-            with open('{}/{}_path{}_rela_xz.csv'.format(dataPath,now_date,cur_path_id),'a',newline="\n")as f:
+            with open('{}/{}_target{}_path{}_rela_xz.csv'.format(dataPath,now_date,target_percent,cur_path_id),'a',newline="\n")as f:
                 f_csv = csv.writer(f) # <<<<<<
                 for row in allData:
                     f_csv.writerow(row)
