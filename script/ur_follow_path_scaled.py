@@ -225,9 +225,9 @@ def urGivenPath4(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad,ite_start,
         ## quaternion in global frame
         theta_rad_global = -theta_rad_shiyu
         r = R.from_euler('y', theta_rad_global+oigin_angle_rad)
-
+        r_rela = R.from_euler('y', theta_rad_global)
         ## cal. xyz of EE
-        xyz_EE_global = addFT(x_global,y_global,z_global,r)
+        xyz_EE_global = addFT(x_global,y_global,z_global,r_rela)
         wpose.position.x = xyz_EE_global[0]
         wpose.position.y = xyz_EE_global[1]
         wpose.position.z = xyz_EE_global[2]
@@ -391,18 +391,43 @@ if __name__ == '__main__':
     # go2GivenPoseSP(ur_control,sp,test_pose)
     # rospy.sleep(0.5)
 
-    ## go the init pos of the exp 
-    # init_pose = [0 for hh in range(0,3)]
-    # init_pose[0] = originx + 0.085 - 0.005*6
-    # init_pose[1] = originy + 0.1
-    # init_pose[2] = sp.SAFEZ
-    # go2GivenPoseSP(ur_control,sp,init_pose)
-    # rospy.sleep(0.5)
+    
+    ## horizonal angle
+    hori_angle_rad = -4.251274840994698
+
+    ## measure water weight of full bucket 
+    # waypoints11 = []
+    # wpose = ur_control.group.get_current_pose().pose
+    # r_dump = R.from_euler('y', hori_angle_rad)
+    # quat_dump = r_dump.as_quat()        
+    # wpose.orientation.x = quat_dump[0]
+    # wpose.orientation.y = quat_dump[1]
+    # wpose.orientation.z = quat_dump[2]
+    # wpose.orientation.w = quat_dump[3]
+    # waypoints11.append(copy.deepcopy(wpose))
+    # (plan, fraction) = ur_control.go_cartesian_path(waypoints11,execute=False)
+    # ur_control.group.execute(plan, wait=True)
+
+    ## [scale] position
+    x_pos_scale = -0.42317078158291194
+    y_pos_scale = -0.23821445105624778
+    z_pos_scale = 0.024138531318682835+0.05
+    # [scale] to scale bucket filling rate or not
+    needScale = 1
 
     ## [bucket] start point x=0,y=0.45,z=0 expressed in shiyu frame 
     start_pt = [-0.54943859455702817, 0.10205824512513274,0.08795793366304825]
+    start_pt[0] += 0.05
     start_pt[1] -= 0.05
-    start_pt[2] += 0.05
+    start_pt[2] -= 0.005
+    ## offset for path 1
+    # start_pt[0] += 0.152
+    ## offset for path 2 [x]
+    # start_pt[0] += 0.1
+    ## offset for path 3
+    start_pt[0] += 0.18
+    ## offset for path 4 [x]
+    # start_pt[0] += 0.17
     waypoints = []
     wpose = ur_control.group.get_current_pose().pose
     # wpose.position.x = start_pt[0]#+0.21 #-0.1
@@ -420,7 +445,8 @@ if __name__ == '__main__':
     wpose.orientation.z = quat_global[2]
     wpose.orientation.w = quat_global[3]
 
-    start_pt_EE = addFT(start_pt[0],start_pt[1],start_pt[2],r,delta_L=0.0375)
+    r_rela = R.from_euler('y', 0)
+    start_pt_EE = addFT(start_pt[0],start_pt[1],start_pt[2],r_rela,delta_L=0.0375)
     wpose.position.x = start_pt_EE[0]#+0.21 #-0.1
     wpose.position.y = start_pt_EE[1]
     wpose.position.z = start_pt_EE[2]#+0.2 #+0.2 #-0.25
@@ -430,14 +456,7 @@ if __name__ == '__main__':
     (plan, fraction) = ur_control.go_cartesian_path(waypoints,execute=False)
     ur_control.group.execute(plan, wait=True)
     rospy.sleep(0.5)
-    
-    
-    fd_nonjamming = 3  # 3N
-    fd_object = 7  # 3N
-    traj_radius = 0.01 # xx cm
 
-    # switch: w/ or w/o proximity sensing
-    wSensing = 1
 
     ## parameters of GPR
     # seasonal_kernel = ExpSineSquared(length_scale=1, periodicity=1200, periodicity_bounds=(1000, 1500))
@@ -456,7 +475,7 @@ if __name__ == '__main__':
         rospy.sleep(0.5)
 
     ## start the loop
-    for cur_path_id in range(0,1): # <<<<<<
+    for cur_path_id in range(3,4): # <<<<<<
         print("--------- {}-th path ---------".format(cur_path_id))
         ## record the start x,y (i.e., current pos) in UR frame (world frame in sand box)
         wpose = ur_control.group.get_current_pose().pose
@@ -512,7 +531,7 @@ if __name__ == '__main__':
         jdcond2 = 0 #<<<< NEW ADD
 
         ## [bucket] generate waypts along bucket path
-        bucketVelScale=0.3
+        bucketVelScale=1.0
         expFolderName = '/home/zhangzeqing/ur5_ws/src/ur_water_bucket/data'
         fileName = '/scaled_bucket_targeted_amount_0.6_saved_trajs.pkl'
         file_dir = expFolderName+fileName
@@ -586,11 +605,47 @@ if __name__ == '__main__':
         if flargeFlag == True:
             waypoints = []
             wpose = ur_control.group.get_current_pose().pose
-            wpose.position.z = sp.SAFEZ
+            wpose.position.z += 0.16
             waypoints.append(copy.deepcopy(wpose))
             (plan, fraction) = ur_control.go_cartesian_path(waypoints,execute=False)
+            ur_control.set_speed_slider(0.3)
+            rospy.sleep(.5)
             ur_control.group.execute(plan, wait=True)
         
+        if needScale == 1 and flargeFlag != True:
+            # go to scale position
+            waypoints_dump = []
+
+            ## over the sacle
+            wpose = ur_control.group.get_current_pose().pose
+            wpose.position.x = x_pos_scale
+            wpose.position.y = y_pos_scale
+            waypoints_dump.append(copy.deepcopy(wpose))
+
+            wpose.position.z = z_pos_scale
+            waypoints_dump.append(copy.deepcopy(wpose))
+
+            ## dump
+            r_dump = R.from_euler('y', np.deg2rad(+85)+hori_angle_rad)
+            quat_dump = r_dump.as_quat()        
+            wpose.orientation.x = quat_dump[0]
+            wpose.orientation.y = quat_dump[1]
+            wpose.orientation.z = quat_dump[2]
+            wpose.orientation.w = quat_dump[3]
+            waypoints_dump.append(copy.deepcopy(wpose))
+            (plan, fraction) = ur_control.go_cartesian_path(waypoints_dump,execute=False)
+            ur_control.group.execute(plan, wait=True)
+            rospy.sleep(5)
+
+            ## move up 16cm
+            waypoints_dump = []
+            wpose.position.z += 0.16
+            waypoints_dump.append(copy.deepcopy(wpose))
+            (plan, fraction) = ur_control.go_cartesian_path(waypoints_dump,execute=False)
+            ur_control.set_speed_slider(0.3)
+            ur_control.group.execute(plan, wait=True)
+
+
         rospy.loginfo('{}-th path finished'.format(cur_path_id))
     # end of for-loop
 
