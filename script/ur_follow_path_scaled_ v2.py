@@ -1,7 +1,7 @@
 # exp: ur5 + path data from the folder 'data'
 # for scaled data
 # v2.0: exp for 0.6,0.7,0.8 pkl files
-#       long container
+#       using 52LBox (long container)
 #
 # Z. Zhang
 # 1/23
@@ -414,13 +414,18 @@ if __name__ == '__main__':
     print(f'------ Target: {target_percent} ------')
 
     ## [scale] position
-    x_pos_scale = -0.42317078158291194
-    y_pos_scale = -0.23821445105624778
-    z_pos_scale = 0.024138531318682835+0.05
+    # 15LBox container setup
+    # x_pos_scale = -0.42317078158291194
+    # y_pos_scale = -0.23821445105624778
+    # z_pos_scale = 0.024138531318682835+0.05
+    # 52LBox container setup
+    x_pos_scale = -0.5336740207559201
+    y_pos_scale = -0.338196678321544
+    z_pos_scale = -0.2634412260408581
     # [scale] to scale bucket filling rate or not
     needScale = 1
 
-    ## [bucket] start point x=0,y=0.45,z=0 expressed in shiyu frame 
+    ## [bucket] start point x=0,y=0.3,z=0 expressed in shiyu frame 
     start_pt = [-0.54943859455702817, 0.10205824512513274,0.08795793366304825]
     start_pt[0] += 0.05
     start_pt[1] -= 0.05
@@ -672,7 +677,7 @@ if __name__ == '__main__':
 
             ## move up 16cm
             waypoints_dump = []
-            wpose.position.z += 0.16
+            wpose.position.z = start_pt[2]+0.16
             waypoints_dump.append(copy.deepcopy(wpose))
             (plan, fraction) = ur_control.go_cartesian_path(waypoints_dump,execute=False)
             ur_control.set_speed_slider(0.3)
