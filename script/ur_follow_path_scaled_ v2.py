@@ -335,10 +335,10 @@ if __name__ == '__main__':
     
     # folder name
     expFolderName = '/20230115_exp' # <<<<<<
-    NutStorePath = '/home/zhangzeqing/Nutstore Files/Nutstore/water_manipulate'
+    NutStorePath = '/home/ur5/Nutstore Files/Nutstore/water_manipulate'
     dataPath = NutStorePath+expFolderName+'/data'
     figPath = NutStorePath+expFolderName+'/fig'
-    bagPath = '/home/zhangzeqing/ur5_ws/src/ur_control/logs' #'/home/zhangzeqing/rosbag'
+    bagPath = '/home/ur5/ur5_ws/src/ur_control/logs' #'/home/ur5/rosbag'
     isSaveForce = 1           # <<<<<<
     isRecord = 1 # rosbag recorder
     isPlotJD = 1
@@ -570,7 +570,7 @@ if __name__ == '__main__':
 
         ## [bucket] generate waypts along bucket path
         bucketVelScale=1.0
-        expFolderName = '/home/zhangzeqing/ur5_ws/src/ur_water_bucket/data'
+        expFolderName = '/home/ur5/ur5_ws/src/ur_water_bucket/data'
         fileName = '/scaled_bucket_targeted_amount_'+str(target_percent)+'_saved_trajs.pkl' # unit: mm
         file_dir = expFolderName+fileName
         path_id = 0
