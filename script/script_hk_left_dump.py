@@ -570,6 +570,8 @@ if __name__ == '__main__':
         curEps_LRslope_ls = []
         ## list: 2d velocity of EE
         vel2d_ls = []
+        ## ee velocity
+        vx_max,vy_max,vz_max,wx_max,wy_max,wz_max = 0,0,0,0,0,0
 
         ## initialize parameters for each slide        
         ite = 1 # ite starts from 1, exp iteration starts from 0
@@ -641,9 +643,33 @@ if __name__ == '__main__':
                 rela_x_ls.append(round(curx - oigin_pt[0],4))
                 rela_z_ls.append(round(curz - oigin_pt[2],4))  
 
+                # eetwist_filter = ur_control.get_ee_twist()
+                eetwist_filter = ur_control.get_ee_twist_filter()
+                vx = eetwist_filter[0]
+                vy = eetwist_filter[1]
+                vz = eetwist_filter[2]
+                wx = eetwist_filter[3]
+                wy = eetwist_filter[4]
+                wz = eetwist_filter[5]
+                vx_max = np.max([np.abs(vx),vx_max])
+                vy_max = np.max([np.abs(vy),vy_max])
+                vz_max = np.max([np.abs(vz),vz_max])
+                wx_max = np.max([np.abs(wx),wx_max])
+                wy_max = np.max([np.abs(wy),wy_max])
+                wz_max = np.max([np.abs(wz),wz_max])
+
                 ite = ite+1
             
         ## end of while loop
+
+        ## print maximum velocity
+        print(f'vx_max: {vx_max}')
+        print(f'vy_max: {vy_max}')
+        print(f'vz_max: {vz_max}')
+        print(f'wx_max: {wx_max}')
+        print(f'wy_max: {wy_max}')
+        print(f'wz_max: {wz_max}')
+
 
         now_date = time.strftime("%m%d%H%M%S", time.localtime())
         ## log (external)
