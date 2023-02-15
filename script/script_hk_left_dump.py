@@ -440,49 +440,6 @@ if __name__ == '__main__':
     # [scale] to scale bucket filling rate or not
     needScale = 1
 
-    ### test ####
-    # # go to scale position
-    # waypoints_dump = []
-    # ## overhead the scale (v2.0)
-    # wpose = ur_control.group.get_current_pose().pose
-    # wpose.position.x = x_pos_scale
-    # wpose.position.y = y_pos_scale
-    # wpose.orientation.x = 0.6243280707459916
-    # wpose.orientation.y = 0.623661472464123
-    # wpose.orientation.z = -0.33288950702266373
-    # wpose.orientation.w =  0.33233327241893473
-    # waypoints_dump.append(copy.deepcopy(wpose))
-
-    # wpose.position.z = z_pos_scale
-    # waypoints_dump.append(copy.deepcopy(wpose))
-
-    # (plan, fraction) = ur_control.go_cartesian_path(waypoints_dump,execute=False)
-    # ur_control.group.execute(plan, wait=True)
-    # rospy.sleep(.5)
-
-    # ## dump
-    # waypoints_dump = []
-    # r_dump = R.from_euler('yz', [180+45, -90], degrees=True)
-    # quat_dump = r_dump.as_quat()
-    # wpose.orientation.x = quat_dump[0]
-    # wpose.orientation.y = quat_dump[1]
-    # wpose.orientation.z = quat_dump[2]
-    # wpose.orientation.w = quat_dump[3]
-    # waypoints_dump.append(copy.deepcopy(wpose))
-    # (plan, fraction) = ur_control.go_cartesian_path(waypoints_dump,execute=False)
-    # ur_control.group.execute(plan, wait=True)
-    # rospy.sleep(5)
-
-    # ## move up 16cm
-    # waypoints_dump = []
-    # wpose.position.z = start_pt[2]+0.16
-    # waypoints_dump.append(copy.deepcopy(wpose))
-    # (plan, fraction) = ur_control.go_cartesian_path(waypoints_dump,execute=False)
-    
-    # ur_control.group.execute(plan, wait=True)
-
-    ### test ###
-
     waypoints = []
     wpose = ur_control.group.get_current_pose().pose
     # wpose.position.x = start_pt[0]#+0.21 #-0.1
