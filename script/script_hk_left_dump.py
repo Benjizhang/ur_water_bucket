@@ -732,9 +732,9 @@ if __name__ == '__main__':
             ur_control.group.execute(plan, wait=True)
             rospy.sleep(5)
 
-            ## move up 16cm
+            ## move up 18cm
             waypoints_dump = []
-            wpose.position.z = start_pt[2]+0.16
+            wpose.position.z = start_pt[2]+0.18
             waypoints_dump.append(copy.deepcopy(wpose))
             (plan, fraction) = ur_control.go_cartesian_path(waypoints_dump,execute=False)
             
