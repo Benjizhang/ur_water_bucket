@@ -651,7 +651,7 @@ if __name__ == '__main__':
             ur_control.group.execute(plan, wait=True)
         
         if needScale == 1 and flargeFlag != True:
-            ur_control.set_speed_slider(0.3)
+            ur_control.set_speed_slider(0.6)
 
             # go to scale position
             waypoints_dump = []
