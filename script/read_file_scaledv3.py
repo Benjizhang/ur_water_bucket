@@ -17,7 +17,7 @@ amount_goal_ls = [0.6,0.7,0.8,0.65,0.75]
 pos_goal_ls = [1,2,3]
 waterline_ls = [1,2,3]
 start_ite,end_ite,setp_ite = 0,80+1,5
-saveFig = 1
+saveFig = 0
 
 # NutStorePath = '/home/ur5/Nutstore Files/Nutstore/water_manipulate' # linux
 NutStorePath = 'D:/02data/MyNutFiles/我的坚果云/water_manipulate' # win
