@@ -16,9 +16,7 @@ from functions.bagRecorder import BagRecorder
 from functions.scene_helper import zero_ft_sensor,ft_listener
 from functions.ur_move import MoveGroupPythonInteface
 import moveit_commander
-import sys
-import csv
-import pickle
+import sys,csv,glob,pickle
 from scipy.spatial.transform import Rotation as R
 
 # to read 'scaled_xxx' files
@@ -30,7 +28,12 @@ def urGivenPath4(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad,ite_start,
     wpose = ur_control.group.get_current_pose().pose
 
     ## given path info
-    f = open(file_dir,'rb')
+    if len(glob.glob(file_dir)) != 1:
+        raise Exception('Multiple pkl files!')
+    
+    file = glob.glob(file_dir)[0]
+    print('---- {} ----'.format(file))
+    f = open(file,'rb')
     data = pickle.load(f)
     paths_xyz = data['loader_pos_trajs']/1000 # unit: change to m
     paths_theta = data['loader_rot_trajs']
@@ -40,9 +43,9 @@ def urGivenPath4(ur_control,file_dir,path_id,oigin_pt,oigin_angle_rad,ite_start,
     if path_id >= num_path:
         raise Exception('path id error')
 
-    ## path xyz R^{75*3}
+    ## path xyz R^{110*3}
     cur_path_xyz = paths_xyz[path_id,:,:]
-    ## theta (rad) R^{75*1}
+    ## theta (rad) R^{110*1}
     rot_traj = paths_theta[path_id,:,:]
 
     for i in range(ite_start,ite_end):
@@ -151,10 +154,12 @@ if __name__ == '__main__':
     hori_angle_rad = -4.251274840994698
 
     amount_goal = 0.6
-    pos_goal =1
-    waterline = 1
+    pos_goal    = 3
+    waterline   = 2
     interesting_path = 0
-    print(f'------ Target: {amount_goal} ------')
+    print(f'------ amount_goal: {amount_goal} ------')
+    print(f'------ pos_goal:    {pos_goal} ------')
+    print(f'------ waterline:   {waterline} ------')
 
     ## [bucket] start point x=0,y=0.3,z=0 expressed in shiyu frame 
     start_pt = [-0.54943859455702817, 0.10205824512513274,0.08795793366304825]
@@ -202,7 +207,7 @@ if __name__ == '__main__':
 
     ## start the loop
     for cur_path_id in range(interesting_path,interesting_path+1): # <<<<<<
-        print("--------- {}-th path ---------".format(cur_path_id))
+        # print("--------- {}-th path ---------".format(cur_path_id))
         ## record the start x,y (i.e., current pos) in UR frame (world frame in sand box)
         wpose = ur_control.group.get_current_pose().pose
         x_s_wldf = wpose.position.x
@@ -223,7 +228,7 @@ if __name__ == '__main__':
         ## [bucket] generate waypts along bucket path
         bucketVelScale=1.0
         trajFolderName = '/scaled_trajs'
-        fileName = '/bucket_amount_goal_'+str(amount_goal)+'_pos_goal_'+str(pos_goal)+'_waterline_'+str(waterline)+'_seed_0_error_-0.0275.pkl' # unit: mm
+        fileName = '/bucket_amount_goal_'+str(amount_goal)+'_pos_goal_'+str(pos_goal)+'_waterline_'+str(waterline)+'_seed_0_error_*.pkl' # unit: mm
         file_dir = NutStorePath+trajFolderName+fileName
         # path_id = 0
 
