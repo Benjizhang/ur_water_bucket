@@ -8,6 +8,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 from scipy.spatial.transform import Rotation as R
+import matplotlib.path as mpath
+import matplotlib.patches as mpatches
+import mpl_toolkits.mplot3d.art3d as art3d
+
 
 amount_goal = 0.6
 pos_goal    = 2
@@ -110,7 +114,7 @@ teeth_w = 0.16
 teeth_h = 0.127
 position_x = .1
 position_y = .4
-init_color_matrix = [[1.,0.], [1.,0.]]
+start_ite,end_ite,setp_ite = 0,80,5
 
 ### [bucket] oigin of shiyu frame expressed in global frame
 oigin_pt = np.array([0.,0.,0.])
@@ -139,14 +143,12 @@ for path_id in range(num_path):
         plt.show()
     
 
-
     fig = plt.figure(figsize = (10,10))
     ax = plt.axes(projection='3d')
     # ax.view_init(17,82)
     ax.view_init(0,90)
-    x_global_ls,y_global_ls,z_global_ls = [],[],[]
 
-    for i in range(0,70+1,5):
+    for i in range(start_ite,end_ite+1,setp_ite):
         ## in Shiyu's frame
         x_shiyu = cur_path_xyz[i,0]
         y_shiyu = cur_path_xyz[i,1]
@@ -159,13 +161,9 @@ for path_id in range(num_path):
         y_global = -x_shiyu+ oigin_pt[1]
         z_global = y_shiyu + oigin_pt[2]
 
-        x_global_ls.append(x_global)
-        y_global_ls.append(y_global)
-        z_global_ls.append(z_global)
-
         ## plot point
         # ax.plot3D(x_global,y_global,z_global,'.')
-        ax.scatter(x_global, y_global, z_global, c = 'g', s = 10)
+        ax.scatter(x_global, y_global, z_global, c = 'firebrick', s = 10)
 
         ## quaternion in global frame
         theta_rad_global = -theta_rad_shiyu
@@ -174,7 +172,7 @@ for path_id in range(num_path):
         quat_global = r.as_quat()
 
         ## cal. xyz of EE
-        xyz_EE_global = addFT(x_global,y_global,z_global,r)
+        # xyz_EE_global = addFT(x_global,y_global,z_global,r)
         # wpose.position.x = xyz_EE_global[0]
         # wpose.position.y = xyz_EE_global[1]
         # wpose.position.z = xyz_EE_global[2]
@@ -185,15 +183,32 @@ for path_id in range(num_path):
         ## (rectangle)
         # rect_pts_temp = np.array([[0,0,height/2],[width,0,height/2],[width,0,-height/2],[0,0,-height/2]]).T
         ## (5pts) 3*5
-        # rect_pts_temp = np.array([[0,0,height/2],[width/2,0,height/2],[3*width/2,0,3*height/2],[width,0,-height/2],[0,0,-height/2]]).T
         rect_pts_temp = np.array([[0,0,height/2],[width/2,0,height/2],[teeth_w,0,teeth_h-height/2],[width,0,-height/2],[0,0,-height/2]]).T
         rect_pts_temp = np.hstack((rect_pts_temp,rect_pts_temp[:,0].reshape(3,-1)))
         rect_pts_global = np.matmul(r_rotmat,rect_pts_temp) + np.array([x_global,y_global,z_global]).reshape(-1,1)
         xline = np.hstack((np.array(x_global), rect_pts_global[0,:]))
         yline = np.hstack((np.array(y_global), rect_pts_global[1,:]))
         zline = np.hstack((np.array(z_global), rect_pts_global[2,:]))
-        ax.plot3D(xline,yline,zline,'-',color="darkgreen")
+        ## draw outline of bucket
+        # ax.plot3D(xline,yline,zline,'-',color="darkgreen")
+        ## bucket_patch
+        Path = mpath.Path
+        path_data = [ 
+        (Path.MOVETO, [xline[0],zline[0]]),
+        (Path.LINETO, [xline[1],zline[1]]),
+        (Path.LINETO, [xline[2],zline[2]]),
+        (Path.LINETO, [xline[3],zline[3]]),
+        (Path.LINETO, [xline[4],zline[4]]),
+        (Path.LINETO, [xline[5],zline[5]]),   
+        (Path.CLOSEPOLY, [x_global,z_global]),
+        ]
+        codes, verts = zip(*path_data)
+        path = mpath.Path(verts, codes)
+        bucket_patch = mpatches.PathPatch(path, facecolor='green', alpha=0.2)
+        ax.add_patch(bucket_patch)
+        art3d.pathpatch_2d_to_3d(bucket_patch, z=0, zdir="y")
 
+        # region
         ## start/goal
         # x_start_global = cur_path_xyz[0,2] + oigin_pt[0]
         # y_start_global = -cur_path_xyz[0,0]+ oigin_pt[1]
@@ -209,7 +224,8 @@ for path_id in range(num_path):
         # ax.set_zlim([0.1,0.7])
         # ax.set_xlabel('x', labelpad=5)
         # ax.set_ylabel('y', labelpad=5)
-        # ax.set_zlabel('z', labelpad=5)        
+        # ax.set_zlabel('z', labelpad=5)
+        # endregion
 
     
     # start/goal
@@ -229,7 +245,25 @@ for path_id in range(num_path):
     ax.plot3D(x_waterline,y_waterline,z_waterline,color="blue",label = 'waterline')
 
     # plot bucket traj.
-    ax.plot3D(x_global_ls,y_global_ls,z_global_ls,'-',color="green")
+    x_global_ls,y_global_ls,z_global_ls = [],[],[]
+    for i in range(start_ite,end_ite+1):
+        ## in Shiyu's frame
+        x_shiyu = cur_path_xyz[i,0]
+        y_shiyu = cur_path_xyz[i,1]
+        z_shiyu = cur_path_xyz[i,2]
+        theta_deg_shiyu = np.degrees(rot_traj[i,0])
+        theta_rad_shiyu = rot_traj[i,0]
+
+        ## convert shiyu frame to UR frame (global)
+        x_global = z_shiyu + oigin_pt[0]
+        y_global = -x_shiyu+ oigin_pt[1]
+        z_global = y_shiyu + oigin_pt[2]
+
+        x_global_ls.append(x_global)
+        y_global_ls.append(y_global)
+        z_global_ls.append(z_global)
+    
+    ax.plot3D(x_global_ls,y_global_ls,z_global_ls,'-',color="tomato",label='trajectory')
 
 
     # figure setting
