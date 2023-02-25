@@ -115,14 +115,6 @@ if __name__ == '__main__':
     res = ur_control.play_program()
     rospy.loginfo("play_program: {}".format(res))
     rospy.sleep(1)    
-
-    ## set zero to the ft 300
-    zero_ft_sensor()
-    rospy.sleep(0.5) 
-
-    Lrang = 0.3 # <<<<<<
-    ## position of buried objects
-    ds_obj = 0.24
     
     LIFT_HEIGHT = +0.10 #(default: +0.10) # <<<<<<
     # saftz = initPtz + LIFT_HEIGHT
@@ -147,6 +139,9 @@ if __name__ == '__main__':
     isSaveForce = 1           # <<<<<<
     isRecord = 1 # rosbag recorder
 
+    ## set zero to the ft 300
+    zero_ft_sensor()
+    rospy.sleep(0.5)
     listener = ft_listener()
 
     ## velocity setting
@@ -155,9 +150,11 @@ if __name__ == '__main__':
     ## horizonal angle
     hori_angle_rad = -4.251274840994698
 
-    target_percent = 0.8
-    interesting_path = 1
-    print(f'------ Target: {target_percent} ------')
+    amount_goal = 0.6
+    pos_goal =1
+    waterline = 1
+    interesting_path = 0
+    print(f'------ Target: {amount_goal} ------')
 
     ## [bucket] start point x=0,y=0.3,z=0 expressed in shiyu frame 
     start_pt = [-0.54943859455702817, 0.10205824512513274,0.08795793366304825]
@@ -225,10 +222,10 @@ if __name__ == '__main__':
 
         ## [bucket] generate waypts along bucket path
         bucketVelScale=1.0
-        expFolderName = '/home/ur5/ur5_ws/src/ur_water_bucket/data'
-        fileName = '/scaled_bucket_targeted_amount_'+str(target_percent)+'_saved_trajs.pkl' # unit: mm
-        file_dir = expFolderName+fileName
-        path_id = 0
+        trajFolderName = '/scaled_trajs'
+        fileName = '/bucket_amount_goal_'+str(amount_goal)+'_pos_goal_'+str(pos_goal)+'_waterline_'+str(waterline)+'_seed_0_error_-0.0275.pkl' # unit: mm
+        file_dir = NutStorePath+trajFolderName+fileName
+        # path_id = 0
 
         execute = False
         waypts = urGivenPath4(ur_control,file_dir,cur_path_id,oigin_pt,oigin_angle_rad,0,37)
@@ -299,7 +296,7 @@ if __name__ == '__main__':
         if isSaveForce ==  1:
             ## log: x_rela, z_rela, force val, force dir             
             allData = zip(rela_x_ls,rela_z_ls)                           
-            with open('{}/{}_target{}_path{}_rela_xz.csv'.format(dataPath,now_date,target_percent,cur_path_id),'a',newline="\n")as f:
+            with open('{}/{}_target{}_path{}_rela_xz.csv'.format(dataPath,now_date,amount_goal,cur_path_id),'a',newline="\n")as f:
                 f_csv = csv.writer(f) # <<<<<<
                 for row in allData:
                     f_csv.writerow(row)
