@@ -227,7 +227,7 @@ if __name__ == '__main__':
 
         ## [bucket] generate waypts along bucket path
         bucketVelScale=1.0
-        trajFolderName = '/scaled_trajs'
+        trajFolderName = 'scaled_trajs_23cm' # '/scaled_trajs_30cm'
         fileName = '/bucket_amount_goal_'+str(amount_goal)+'_pos_goal_'+str(pos_goal)+'_waterline_'+str(waterline)+'_seed_0_error_*.pkl' # unit: mm
         file_dir = NutStorePath+trajFolderName+fileName
         # path_id = 0
