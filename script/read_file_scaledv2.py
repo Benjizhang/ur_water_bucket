@@ -16,9 +16,9 @@ amount_goal_ls = [0.6,0.7,0.8,0.65,0.75]
 pos_goal_ls = [1,2,3]
 waterline_ls = [1,2,3]
 
-amount_goal = 0.6
+amount_goal = 0.65
 pos_goal    = 1
-waterline   = 1
+waterline   = 3
 start_ite,end_ite,setp_ite = 40,80,5
 print(f'------ amount_goal: {amount_goal} ------')
 print(f'------ pos_goal:    {pos_goal} ------')
@@ -217,8 +217,8 @@ ax.plot3D(x_global_ls,y_global_ls,z_global_ls,'-',color="tomato",label='trajecto
 # figure setting
 ax.axis('scaled')
 ax.set_xlim([-0.2,0.3])
-ax.set_zlim([0.,0.7])
-ax.axis('scaled')
+ax.set_zlim([0.,0.4])
+# ax.axis('scaled')
 
 plt.tick_params(axis = 'x',labelsize=14)
 plt.tick_params(axis = 'z',labelsize=14)
