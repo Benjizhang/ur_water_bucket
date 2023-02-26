@@ -155,7 +155,7 @@ if __name__ == '__main__':
     ## [bucket] start point x=0,y=0.233,z=0 expressed in shiyu frame 
     start_pt = [-0.54943859455702817, 0.10205824512513274,0.08795793366304825]
     start_pt[0] -= 0.1
-    start_pt[1] -= 0.05
+    start_pt[1] -= 0.0
     start_pt[2] += 0.056-0.067
 
     # 327Box left dump
