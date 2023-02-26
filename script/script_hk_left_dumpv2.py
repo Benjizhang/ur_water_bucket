@@ -119,15 +119,7 @@ if __name__ == '__main__':
     rospy.loginfo("play_program: {}".format(res))
     rospy.sleep(1)    
     
-    LIFT_HEIGHT = +0.10 #(default: +0.10) # <<<<<<
-    # saftz = initPtz + LIFT_HEIGHT
-    # PENETRATION DEPTH
-    if exp_mode == 'trial':
-        normalVelScale = 0.1 # <<<<<<
-    elif exp_mode == 'normal':
-        normalVelScale = 0.1 #(default: 0.2) <<<<<<
-    else:
-        raise Exception('Error: Invalid Exp Mode!')    
+    LIFT_HEIGHT = +0.10 #(default: +0.10) # <<<<<<   
     # depthz = originz + PENE_DEPTH
     maxVelScale    = 0.6 # <<<<<<
     # Cur SAFE FORCE
@@ -153,8 +145,8 @@ if __name__ == '__main__':
     ## horizonal angle
     hori_angle_rad = -4.251274840994698
 
-    amount_goal = 0.6
-    pos_goal    = 2
+    amount_goal = 0.8
+    pos_goal    = 3
     waterline   = 1
     print(f'------ amount_goal: {amount_goal} ------')
     print(f'------ pos_goal:    {pos_goal} ------')
@@ -189,9 +181,9 @@ if __name__ == '__main__':
 
     r_rela = R.from_euler('y', 0)
     start_pt_EE = addFT(start_pt[0],start_pt[1],start_pt[2],r_rela,delta_L=0.0375)
-    wpose.position.x = start_pt_EE[0]#+0.21 #-0.1
+    wpose.position.x = start_pt_EE[0]
     wpose.position.y = start_pt_EE[1]
-    wpose.position.z = start_pt_EE[2]#+0.2 #+0.2 #-0.25
+    wpose.position.z = start_pt_EE[2]
 
     ## [bucket] return to start pt before any paths
     waypoints.append(copy.deepcopy(wpose))
@@ -218,7 +210,7 @@ if __name__ == '__main__':
     ite = 1 # ite starts from 1
 
     ## [bucket] generate waypts along bucket path
-    bucketVelScale=0.5
+    bucketVelScale=1.0
     trajFolderName = '/scaled_trajs_23cm' # '/scaled_trajs_30cm'
     fileName = '/bucket_amount_goal_'+str(amount_goal)+'_pos_goal_'+str(pos_goal)+'_waterline_'+str(waterline)+'_seed_0_error_*.pkl' # unit: mm
     file_dir = NutStorePath+trajFolderName+fileName
@@ -287,16 +279,23 @@ if __name__ == '__main__':
         ur_control.group.execute(plan, wait=True)
     
     if needScale == 1 and flargeFlag != True:
+        rospy.sleep(.5)
         ur_control.set_speed_slider(0.6)
-
-        # go to scale position
         waypoints_dump = []
-
-        ## overhead the scale (v2.0)
         wpose = ur_control.group.get_current_pose().pose
-        wpose.position.z = z_pos_scale+0.1
+
+        # keep the bucket horizonally
+        wpose.orientation.x = -0.011323285790904978
+        wpose.orientation.y = 0.8424439772689742
+        wpose.orientation.z = -0.011348856801593265
+        wpose.orientation.w = 0.5385453850989964
         waypoints_dump.append(copy.deepcopy(wpose))
 
+        # lift up
+        wpose.position.z = z_pos_scale+0.1
+        waypoints_dump.append(copy.deepcopy(wpose))        
+
+        ## move to scale overhead
         wpose.position.x = x_pos_scale
         wpose.position.y = y_pos_scale
         wpose.orientation.x = 0.6243280707459916
@@ -305,6 +304,7 @@ if __name__ == '__main__':
         wpose.orientation.w =  0.33233327241893473
         waypoints_dump.append(copy.deepcopy(wpose))        
 
+        ## going down to dump pt
         wpose.position.z = z_pos_scale
         waypoints_dump.append(copy.deepcopy(wpose))
 
@@ -316,6 +316,8 @@ if __name__ == '__main__':
         wpose.orientation.z = quat_dump[2]
         wpose.orientation.w = quat_dump[3]
         waypoints_dump.append(copy.deepcopy(wpose))
+
+        ## execute
         (plan, fraction) = ur_control.go_cartesian_path(waypoints_dump,execute=False)
         ur_control.group.execute(plan, wait=True)
         rospy.sleep(5)
@@ -328,7 +330,7 @@ if __name__ == '__main__':
         
         ur_control.group.execute(plan, wait=True)
 
-    rospy.loginfo('{}-th path finished'.format(cur_path_id))
+    rospy.loginfo(f'Done! AG{amount_goal}_PG{pos_goal}_WL{waterline}')
 
     # if isRecord == 1:
     #     recorder.stop()
