@@ -154,7 +154,7 @@ if __name__ == '__main__':
     hori_angle_rad = -4.251274840994698
 
     amount_goal = 0.6
-    pos_goal    = 1
+    pos_goal    = 2
     waterline   = 1
     print(f'------ amount_goal: {amount_goal} ------')
     print(f'------ pos_goal:    {pos_goal} ------')
@@ -162,7 +162,7 @@ if __name__ == '__main__':
 
     ## [bucket] start point x=0,y=0.233,z=0 expressed in shiyu frame 
     start_pt = [-0.54943859455702817, 0.10205824512513274,0.08795793366304825]
-    start_pt[0] += 0.05
+    start_pt[0] -= 0.1
     start_pt[1] -= 0.05
     start_pt[2] += 0.056-0.067
 
