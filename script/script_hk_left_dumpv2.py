@@ -145,9 +145,9 @@ if __name__ == '__main__':
     ## horizonal angle
     hori_angle_rad = -4.251274840994698
 
-    amount_goal = 0.8
+    amount_goal = 0.75
     pos_goal    = 3
-    waterline   = 1
+    waterline   = 1 #<<<< serious when change it
     print(f'------ amount_goal: {amount_goal} ------')
     print(f'------ pos_goal:    {pos_goal} ------')
     print(f'------ waterline:   {waterline} ------')
@@ -216,7 +216,7 @@ if __name__ == '__main__':
     file_dir = NutStorePath+trajFolderName+fileName
 
     execute = False
-    waypts = urGivenPath4(ur_control,file_dir,cur_path_id,oigin_pt,oigin_angle_rad,0,80+1)
+    waypts = urGivenPath4(ur_control,file_dir,cur_path_id,oigin_pt,oigin_angle_rad,0,110)
     (plan, fraction) = ur_control.go_cartesian_path2(waypts,execute=execute,velscale=bucketVelScale)
     if execute == False:
         listener.clear_finish_flag()
