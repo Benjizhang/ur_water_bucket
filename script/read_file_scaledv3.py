@@ -20,9 +20,10 @@ start_ite,end_ite,setp_ite = 0,80+1,5
 saveFig = 0
 
 # NutStorePath = '/home/ur5/Nutstore Files/Nutstore/water_manipulate' # linux
-NutStorePath = 'D:/02data/MyNutFiles/我的坚果云/water_manipulate' # win
-trajFolderName = '/scaled_trajs_23cm'
-savePath = NutStorePath+'/fig_23cm'
+# NutStorePath = 'D:/02data/MyNutFiles/我的坚果云/water_manipulate' # win
+NutStorePath = 'D:/Niu, Yaru/23cm_7_8_9cm'
+trajFolderName = '/scaled_trajs_035'
+savePath = NutStorePath+'/fig_23cm_7_8_9cm'
 
 for ii in range(len(amount_goal_ls)):
     for jj in range(len(pos_goal_ls)):
