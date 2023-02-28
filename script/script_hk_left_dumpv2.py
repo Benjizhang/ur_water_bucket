@@ -123,7 +123,7 @@ if __name__ == '__main__':
     # depthz = originz + PENE_DEPTH
     maxVelScale    = 0.6 # <<<<<<
     # Cur SAFE FORCE
-    CUR_SAFE_FORCE = 15.0  #(default: 15N) # <<<<<<
+    CUR_SAFE_FORCE = 25.0  #(default: 15N) # <<<<<<
     
     # folder name
     expFolderName = '/20230225_exphk' # <<<<<<
@@ -148,9 +148,9 @@ if __name__ == '__main__':
 
     amount_goal_ls = [0.6,0.7,0.8,0.65,0.75]
 
-    amount_goal = 0.75
-    pos_goal    = 3
-    waterline   = 3 #<<<< serious when change it
+    amount_goal = 0.6
+    pos_goal    = 1
+    waterline   = 2 #<<<< serious when change it
     print(f'------ amount_goal: {amount_goal} ------')
     print(f'------ pos_goal:    {pos_goal} ------')
     print(f'------ waterline:   {waterline} ------')
@@ -219,7 +219,7 @@ if __name__ == '__main__':
     file_dir = DataPKLPath+trajFolderName+fileName
 
     execute = False
-    waypts = urGivenPath4(ur_control,file_dir,cur_path_id,oigin_pt,oigin_angle_rad,0,110)
+    waypts = urGivenPath4(ur_control,file_dir,cur_path_id,oigin_pt,oigin_angle_rad,0,60)
     (plan, fraction) = ur_control.go_cartesian_path2(waypts,execute=execute,velscale=bucketVelScale)
     if execute == False:
         listener.clear_finish_flag()
