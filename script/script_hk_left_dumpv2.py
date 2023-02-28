@@ -128,7 +128,7 @@ if __name__ == '__main__':
     # folder name
     expFolderName = '/20230225_exphk' # <<<<<<
     NutStorePath = '/home/ur5/Nutstore Files/Nutstore/water_manipulate'
-    DataPKLPath = '/home/ur5/Niu, Yaru/30cm_7_8.5_10cm'
+    DataPKLPath = '/home/ur5/Niu, Yaru/30cm_6_6.5_7.5cm'
     dataPath = NutStorePath+expFolderName+'/data'
     figPath = NutStorePath+expFolderName+'/fig'
     bagPath = '/home/ur5/ur5_ws/src/ur_control/logs' #'/home/ur5/rosbag'
@@ -149,8 +149,8 @@ if __name__ == '__main__':
     amount_goal_ls = [0.6,0.7,0.8,0.65,0.75]
 
     amount_goal = 0.7
-    pos_goal    = 3
-    waterline   = 2 #<<<< serious when change it
+    pos_goal    = 1
+    waterline   = 3 #<<<< serious when change it
     print(f'------ amount_goal: {amount_goal} ------')
     print(f'------ pos_goal:    {pos_goal} ------')
     print(f'------ waterline:   {waterline} ------')
@@ -214,7 +214,7 @@ if __name__ == '__main__':
 
     ## [bucket] generate waypts along bucket path
     bucketVelScale=1.0
-    trajFolderName = '/scaled_trajs' # '/scaled_trajs_30cm'
+    trajFolderName = '/scaled_trajs_30cm' # '/scaled_trajs_30cm'
     fileName = '/bucket_amount_goal_'+str(amount_goal)+'_pos_goal_'+str(pos_goal)+'_waterline_'+str(waterline)+'_seed_0_error_*.pkl' # unit: mm
     file_dir = DataPKLPath+trajFolderName+fileName
 
