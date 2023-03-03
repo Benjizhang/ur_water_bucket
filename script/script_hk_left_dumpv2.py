@@ -128,7 +128,7 @@ if __name__ == '__main__':
     # folder name
     expFolderName = '/20230225_exphk' # <<<<<<
     NutStorePath = '/home/ur5/Nutstore Files/Nutstore/water_manipulate'
-    DataPKLPath = '/home/ur5/Niu, Yaru/40cm_7_8.5_10cm'
+    DataPKLPath = '/home/ur5/Niu, Yaru/23cm_6_6.5_7.5cm'
     dataPath = NutStorePath+expFolderName+'/data'
     figPath = NutStorePath+expFolderName+'/fig'
     bagPath = '/home/ur5/ur5_ws/src/ur_control/logs' #'/home/ur5/rosbag'
@@ -148,30 +148,30 @@ if __name__ == '__main__':
 
     amount_goal_ls = [0.6,0.7,0.8,0.65,0.75]
 
-    amount_goal = 0.7
-    pos_goal    = 3
-    waterline   = 2 #<<<< serious when change it
+    amount_goal = 0.6
+    pos_goal    = 2
+    waterline   = 3 #<<<< serious when change it
     print(f'------ amount_goal: {amount_goal} ------')
     print(f'------ pos_goal:    {pos_goal} ------')
     print(f'------ waterline:   {waterline} ------')
 
-    ## [bucket] start point x=0,y=0.4,z=0 expressed in shiyu frame 
+    ## [bucket] start point x=0,y=0.233,z=0 expressed in shiyu frame 
     start_pt = [-0.54943859455702817, 0.10205824512513274,0.08795793366304825]
     start_pt[0] -= 0.1
-    start_pt[1] += 0.05
-    start_pt[2] += 0.056+0.1#-0.067
+    start_pt[1] -= 0.0
+    start_pt[2] += 0.056-0.067
 
     # 327Box left dump
     x_pos_scale = 0.05280974577389467
     y_pos_scale = 0.5545436377897706
-    z_pos_scale = start_pt[2]-0.1#+0.067
+    z_pos_scale = start_pt[2]+0.067
     # [scale] to scale bucket filling rate or not
     needScale = 1
 
     waypoints = []
     wpose = ur_control.group.get_current_pose().pose
     ## [bucket] oigin of shiyu frame expressed in global frame
-    oigin_pt = np.array(start_pt)-np.array([0,0,0.4])
+    oigin_pt = np.array(start_pt)-np.array([0,0,0.233])
 
     ## [bucket] give start angle of bucket at start pt
     oigin_angle_rad = -1.5*np.pi
@@ -214,7 +214,7 @@ if __name__ == '__main__':
 
     ## [bucket] generate waypts along bucket path
     bucketVelScale=1.0
-    trajFolderName = '/scaled_trajs_init_height060' # '/scaled_trajs_30cm'
+    trajFolderName = '/scaled_trajs_23cm' # '/scaled_trajs_30cm'
     fileName = '/bucket_amount_goal_'+str(amount_goal)+'_pos_goal_'+str(pos_goal)+'_waterline_'+str(waterline)+'_seed_0_error_*.pkl' # unit: mm
     file_dir = DataPKLPath+trajFolderName+fileName
 
@@ -327,7 +327,7 @@ if __name__ == '__main__':
 
         ## move up 18cm
         waypoints_dump = []
-        wpose.position.z = start_pt[2]+0.18-0.1#+0.067
+        wpose.position.z = start_pt[2]+0.18+0.067
         waypoints_dump.append(copy.deepcopy(wpose))
         (plan, fraction) = ur_control.go_cartesian_path(waypoints_dump,execute=False)
         
