@@ -16,11 +16,20 @@ import mpl_toolkits.mplot3d.art3d as art3d
 amount_goal_ls = [0.6,0.7,0.8,0.65,0.75]
 pos_goal_ls = [1,2,3]
 waterline_ls = [1,2,3]
-start_ite,end_ite,setp_ite = 0,80+1,5
+start_ite,end_ite,setp_ite = 0,100+1,5
 saveFig = 0
 
 # NutStorePath = '/home/ur5/Nutstore Files/Nutstore/water_manipulate' # linux
 # NutStorePath = 'D:/02data/MyNutFiles/我的坚果云/water_manipulate' # win
+
+# NutStorePath = 'D:/Niu, Yaru/23cm_6_6.5_7.5cm'
+# trajFolderName = '/scaled_trajs_23cm'
+# savePath = NutStorePath+'/fig_23cm_6_6.5_7.5cm'
+
+# NutStorePath = 'D:/Niu, Yaru/23cm_7_8.5_10cm'
+# trajFolderName = '/scaled_trajs'
+# savePath = NutStorePath+'/fig_23cm_7_8.5_10cm'
+
 NutStorePath = 'D:/Niu, Yaru/23cm_7_8_9cm'
 trajFolderName = '/scaled_trajs_035'
 savePath = NutStorePath+'/fig_23cm_7_8_9cm'
@@ -28,6 +37,9 @@ savePath = NutStorePath+'/fig_23cm_7_8_9cm'
 for ii in range(len(amount_goal_ls)):
     for jj in range(len(pos_goal_ls)):
         for kk in range(len(waterline_ls)):
+            ii = 1
+            jj = 1
+            kk = 1
             amount_goal = amount_goal_ls[ii]
             pos_goal    = pos_goal_ls[jj]
             waterline   = waterline_ls[kk]
@@ -193,7 +205,7 @@ for ii in range(len(amount_goal_ls)):
             y_goal_global = -cur_path_xyz[-1,0]+ oigin_pt[1]
             z_goal_global = cur_path_xyz[-1,1] + oigin_pt[2]
             ax.scatter(x_start_global,y_start_global,z_start_global, marker="o", color="red", s = 40,label="start")
-            ax.scatter(x_goal_global,y_goal_global,z_goal_global, marker="x", color="red", s = 40,label="goal")
+            ax.scatter(x_goal_global,y_goal_global,z_goal_global, marker="x", color="red", s = 40,label="position goal")
 
             # plot water line
             x_waterline = np.array([-0.2,0.3])
