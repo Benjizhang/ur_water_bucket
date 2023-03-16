@@ -237,4 +237,4 @@ for ii in range(len(amount_goal_ls)):
             # plt.show()
             
             fig_name = f'AG{amount_goal}_PG{pos_goal}_WL{waterline}.gif'
-            ani.save(save_path+'/' + fig_name, writer='ffmpeg', fps=30)
+            ani.save(save_path+'/' + fig_name, writer='pillow', fps=60)
