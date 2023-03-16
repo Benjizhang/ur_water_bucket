@@ -50,8 +50,12 @@ traj_folder_path = '/waterlines_6_6.5_7.5/scaled_trajs_23cm'
 
 
 saveFig = 1
+NutStorePath = 'D:/Niu, Yaru/23cm_7_8_9cm'
+trajFolderName = '/scaled_trajs_035'
+savePath = NutStorePath+'/fig_23cm_7_8_9cm'
 
-save_path = folder_path + traj_folder_path + '_plots/'
+# save_path = folder_path + traj_folder_path + '_plots/'
+save_path = savePath + '/plots'
 if not os.path.exists(save_path):
     os.makedirs(save_path)
 
@@ -67,7 +71,8 @@ for ii in range(len(amount_goal_ls)):
             print(f'------ waterline:   {waterline} ------')
             
             file_name = '/bucket_amount_goal_'+str(amount_goal)+'_pos_goal_'+str(pos_goal)+'_waterline_'+str(waterline)+'_seed_0_error_*.pkl' # unit: mm
-            file_dir = folder_path + traj_folder_path +file_name
+            # file_dir = folder_path + traj_folder_path +file_name
+            file_dir = NutStorePath+trajFolderName+file_name
 
             if len(glob.glob(file_dir)) != 1:
                 raise Exception('Multiple pkl files!')
@@ -229,4 +234,4 @@ for ii in range(len(amount_goal_ls)):
                 
             ani = animation.FuncAnimation(fig, animate, repeat=True, frames=110, interval=200)
             fig_name = f'AG{amount_goal}_PG{pos_goal}_WL{waterline}.gif'
-            ani.save(save_path+'/' + fig_name, writer='imagemagick', fps=60)
+            ani.save(save_path+'/' + fig_name, writer='pillow', fps=60)
