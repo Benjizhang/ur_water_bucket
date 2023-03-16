@@ -233,5 +233,8 @@ for ii in range(len(amount_goal_ls)):
                     
                 
             ani = animation.FuncAnimation(fig, animate, repeat=True, frames=110, interval=200)
+            
+            # plt.show()
+            
             fig_name = f'AG{amount_goal}_PG{pos_goal}_WL{waterline}.gif'
-            ani.save(save_path+'/' + fig_name, writer='pillow', fps=60)
+            ani.save(save_path+'/' + fig_name, writer='ffmpeg', fps=30)
